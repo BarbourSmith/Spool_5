@@ -57,18 +57,20 @@
     },
     {
       "atomType": "GitHubMolecule",
-      "x": 0.3181216931216931,
-      "y": 0.6072423398328691,
+      "x": 0.3167989417989418,
+      "y": 0.6211699164345404,
       "uniqueID": "id-802",
       "name": "Ring_Gear",
       "ioValues": [
         {
           "name": "Pitch",
-          "ioValue": 4
+          "ioValue": 3.14,
+          "currentEquation": "3.14"
         },
         {
           "name": "Number_Of_Teeth",
-          "ioValue": 30
+          "ioValue": 138,
+          "currentEquation": "138"
         },
         {
           "name": "Ring_Width",
@@ -80,7 +82,8 @@
         },
         {
           "name": "Pressure_Angle",
-          "ioValue": 20
+          "ioValue": 20,
+          "currentEquation": "20"
         }
       ],
       "topLevel": false,
@@ -105,11 +108,11 @@
           "ioValues": [
             {
               "name": "teeth",
-              "ioValue": 30
+              "ioValue": 138
             },
             {
               "name": "pitch",
-              "ioValue": 4
+              "ioValue": 3.14
             },
             {
               "name": "ringWidth",
@@ -220,6 +223,35 @@
       "unitsKey": "Unitless",
       "fileTypeVersion": 1,
       "lastReloadedFromGithubAt": 1778014446285
+    },
+    {
+      "atomType": "Circle",
+      "x": 0.6243386243386243,
+      "y": 0.2841225626740947,
+      "uniqueID": "id-823",
+      "ioValues": [
+        {
+          "name": "diameter",
+          "ioValue": 74.5,
+          "currentEquation": "74.5"
+        }
+      ]
+    },
+    {
+      "atomType": "Extrude",
+      "x": 0.7294973544973544,
+      "y": 0.5738161559888579,
+      "uniqueID": "id-826",
+      "ioValues": [
+        {
+          "name": "geometry",
+          "ioValue": "__GEOMETRY_INPUT__"
+        },
+        {
+          "name": "height",
+          "ioValue": 10
+        }
+      ]
     }
   ],
   "allConnectors": [
@@ -230,8 +262,13 @@
     },
     {
       "ap2Name": "number or geometry",
-      "ap1ID": "id-784",
+      "ap1ID": "id-823",
       "ap2ID": "id-780"
+    },
+    {
+      "ap2Name": "geometry",
+      "ap1ID": "id-823",
+      "ap2ID": "id-826"
     }
   ],
   "unitsKey": "MM",
