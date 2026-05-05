@@ -42,8 +42,7 @@
         },
         {
           "name": "x-axis degrees",
-          "ioValue": 90,
-          "currentEquation": "90"
+          "ioValue": 90
         },
         {
           "name": "y-axis degrees",
@@ -51,39 +50,67 @@
         },
         {
           "name": "z-axis degrees",
-          "ioValue": 0
+          "ioValue": -90,
+          "currentEquation": "-90"
+        }
+      ]
+    },
+    {
+      "atomType": "Circle",
+      "x": 0.6170634920634921,
+      "y": 0.2813370473537604,
+      "uniqueID": "id-823",
+      "ioValues": [
+        {
+          "name": "diameter",
+          "ioValue": 149,
+          "currentEquation": "149"
+        }
+      ]
+    },
+    {
+      "atomType": "Extrude",
+      "x": 0.7294973544973544,
+      "y": 0.5738161559888579,
+      "uniqueID": "id-826",
+      "ioValues": [
+        {
+          "name": "geometry",
+          "ioValue": "__GEOMETRY_INPUT__"
+        },
+        {
+          "name": "height",
+          "ioValue": 10
         }
       ]
     },
     {
       "atomType": "GitHubMolecule",
-      "x": 0.3167989417989418,
-      "y": 0.6211699164345404,
+      "x": 0.3181216931216931,
+      "y": 0.467966573816156,
       "uniqueID": "id-802",
       "name": "Ring_Gear",
       "ioValues": [
         {
           "name": "Pitch",
-          "ioValue": 3.14,
-          "currentEquation": "3.14"
+          "ioValue": 3.14
         },
         {
           "name": "Number_Of_Teeth",
-          "ioValue": 138,
-          "currentEquation": "138"
+          "ioValue": 138
         },
         {
           "name": "Ring_Width",
-          "ioValue": 2
+          "ioValue": 4
         },
         {
           "name": "Thickness",
-          "ioValue": 5
+          "ioValue": 6.4,
+          "currentEquation": "6.4"
         },
         {
           "name": "Pressure_Angle",
-          "ioValue": 20,
-          "currentEquation": "20"
+          "ioValue": 20
         }
       ],
       "topLevel": false,
@@ -116,11 +143,11 @@
             },
             {
               "name": "ringWidth",
-              "ioValue": 2
+              "ioValue": 4
             },
             {
               "name": "thickness",
-              "ioValue": 5
+              "ioValue": 6.4
             },
             {
               "name": "pressureAngle",
@@ -225,33 +252,276 @@
       "lastReloadedFromGithubAt": 1778014446285
     },
     {
-      "atomType": "Circle",
-      "x": 0.6243386243386243,
-      "y": 0.2841225626740947,
-      "uniqueID": "id-823",
+      "atomType": "GitHubMolecule",
+      "x": 0.25793650793650796,
+      "y": 0.8412256267409471,
+      "uniqueID": "id-869",
+      "name": "2GT_Belt",
       "ioValues": [
         {
-          "name": "diameter",
-          "ioValue": 74.5,
-          "currentEquation": "74.5"
+          "name": "Number_of_Teeth",
+          "ioValue": 10
         }
-      ]
+      ],
+      "topLevel": false,
+      "allAtoms": [
+        {
+          "atomType": "Output",
+          "x": 0.98,
+          "y": 0.5,
+          "uniqueID": "id-866",
+          "ioValues": [
+            {
+              "name": "number or geometry",
+              "ioValue": "__GEOMETRY_INPUT__"
+            }
+          ]
+        },
+        {
+          "atomType": "Code",
+          "x": 0.3816137566137566,
+          "y": 0.5766016713091923,
+          "uniqueID": "id-867",
+          "ioValues": [
+            {
+              "name": "numberOfTeeth",
+              "ioValue": 10
+            },
+            {
+              "name": "width",
+              "ioValue": 6
+            }
+          ],
+          "interpreterVersion": 1,
+          "code": "/**\n * Straight length of 2GT (GT2) timing belt.\n * 2mm tooth pitch, ~0.75mm tooth depth, 1.38mm total belt thickness.\n * Belt extends along +X starting at the origin; teeth point toward -Y.\n * Width parameter controls the extrusion (belt face width).\n */\nfunction run(numberOfTeeth: number = 20, width: number = 6) {\n  const N = Math.max(1, Math.round(numberOfTeeth));\n  const pitch = 2.0;    // GT2 tooth pitch\n  const toothWidth = 1.15;   // chord width at pitch line\n  const toothDepth = 0.75;   // tip below pitch line\n  const beltThickness = 1.38;   // total belt thickness (back to tooth tip)\n  const pitchY = toothDepth;     // y of pitch line (tip is at y=0)\n  const backY = beltThickness;  // y of belt back\n  const arcSteps = 16;           // segments per tooth flank\n  const L = N * pitch;\n\n  // CCW outline: start top-left, down the left edge, rightward across the\n  // toothed bottom, up the right edge, then close along the top.\n  let pen = replicad.draw([0, backY]);\n  pen = pen.lineTo([0, pitchY]);\n\n  for (let i = 0; i < N; i++) {\n    const xc = (i + 0.5) * pitch;\n    const xLeft = xc - toothWidth / 2;\n\n    // Flat from previous tooth (or x=0) up to this tooth's left edge\n    pen = pen.lineTo([xLeft, pitchY]);\n\n    // Tooth dip — half-ellipse from (xLeft, pitchY) through (xc, 0) to\n    // (xRight, pitchY). Parametrising by θ ∈ [0,π] keeps x monotonic so the\n    // outline never self-intersects:\n    //   x(θ) = xc − (w/2)·cos θ\n    //   y(θ) = pitchY − depth·sin θ\n    for (let s = 1; s <= arcSteps; s++) {\n      const theta = Math.PI * (s / arcSteps);\n      const x = xc - (toothWidth / 2) * Math.cos(theta);\n      const y = pitchY - toothDepth * Math.sin(theta);\n      pen = pen.lineTo([x, y]);\n    }\n  }\n\n  // Trailing flat to the right edge, then up and close\n  pen = pen.lineTo([L, pitchY]);\n  pen = pen.lineTo([L, backY]);\n  const crossSection = pen.close();\n\n  return crossSection.sketchOnPlane().extrude(width);\n}",
+          "compiledCode": "\"use strict\";\n/**\n * Straight length of 2GT (GT2) timing belt.\n * 2mm tooth pitch, ~0.75mm tooth depth, 1.38mm total belt thickness.\n * Belt extends along +X starting at the origin; teeth point toward -Y.\n * Width parameter controls the extrusion (belt face width).\n */\nfunction run(numberOfTeeth = 20, width = 6) {\n    const N = Math.max(1, Math.round(numberOfTeeth));\n    const pitch = 2.0; // GT2 tooth pitch\n    const toothWidth = 1.15; // chord width at pitch line\n    const toothDepth = 0.75; // tip below pitch line\n    const beltThickness = 1.38; // total belt thickness (back to tooth tip)\n    const pitchY = toothDepth; // y of pitch line (tip is at y=0)\n    const backY = beltThickness; // y of belt back\n    const arcSteps = 16; // segments per tooth flank\n    const L = N * pitch;\n    // CCW outline: start top-left, down the left edge, rightward across the\n    // toothed bottom, up the right edge, then close along the top.\n    let pen = replicad.draw([0, backY]);\n    pen = pen.lineTo([0, pitchY]);\n    for (let i = 0; i < N; i++) {\n        const xc = (i + 0.5) * pitch;\n        const xLeft = xc - toothWidth / 2;\n        // Flat from previous tooth (or x=0) up to this tooth's left edge\n        pen = pen.lineTo([xLeft, pitchY]);\n        // Tooth dip — half-ellipse from (xLeft, pitchY) through (xc, 0) to\n        // (xRight, pitchY). Parametrising by θ ∈ [0,π] keeps x monotonic so the\n        // outline never self-intersects:\n        //   x(θ) = xc − (w/2)·cos θ\n        //   y(θ) = pitchY − depth·sin θ\n        for (let s = 1; s <= arcSteps; s++) {\n            const theta = Math.PI * (s / arcSteps);\n            const x = xc - (toothWidth / 2) * Math.cos(theta);\n            const y = pitchY - toothDepth * Math.sin(theta);\n            pen = pen.lineTo([x, y]);\n        }\n    }\n    // Trailing flat to the right edge, then up and close\n    pen = pen.lineTo([L, pitchY]);\n    pen = pen.lineTo([L, backY]);\n    const crossSection = pen.close();\n    return crossSection.sketchOnPlane().extrude(width);\n}\n"
+        },
+        {
+          "atomType": "Input",
+          "x": 0.025384615384615384,
+          "y": 0.15384615384615385,
+          "uniqueID": "id-868",
+          "name": "Number_of_Teeth"
+        }
+      ],
+      "allConnectors": [
+        {
+          "ap2Name": "number or geometry",
+          "ap1ID": "id-867",
+          "ap2ID": "id-866"
+        },
+        {
+          "ap2Name": "numberOfTeeth",
+          "ap1ID": "id-868",
+          "ap2ID": "id-867"
+        }
+      ],
+      "parentRepo": {
+        "privateRepo": false,
+        "repoName": "2GT_Belt",
+        "dateCreated": "2026-05-05T20:35:06Z",
+        "readMe": "https://raw.githubusercontent.com/BarbourSmith/2GT_Belt/master/README.md?sanitize=true",
+        "yyyy": 2026,
+        "topMoleculeID": "id-743",
+        "githubMoleculesUsed": [],
+        "html_url": "https://github.com/BarbourSmith/2GT_Belt",
+        "topics": [],
+        "parentRepo": null,
+        "forks": 0,
+        "dateModified": "739741",
+        "ranking": 0,
+        "searchField": "2gt_belt barboursmith generates a length of 2gt belt using a code atom ",
+        "owner": "BarbourSmith",
+        "description": "Generates a length of 2GT belt using a code atom",
+        "contentURL": "https://raw.githubusercontent.com/BarbourSmith/2GT_Belt/master/project.abundance?sanitize=true",
+        "svgURL": "https://raw.githubusercontent.com/BarbourSmith/2GT_Belt/master/project.svg?sanitize=true",
+        "isLocal": false
+      },
+      "unitsKey": "MM",
+      "fileTypeVersion": 1,
+      "lastReloadedFromGithubAt": 1778014855588
     },
     {
-      "atomType": "Extrude",
-      "x": 0.7294973544973544,
-      "y": 0.5738161559888579,
-      "uniqueID": "id-826",
+      "atomType": "Move",
+      "x": 0.39550264550264547,
+      "y": 0.777158774373259,
+      "uniqueID": "id-879",
       "ioValues": [
         {
           "name": "geometry",
           "ioValue": "__GEOMETRY_INPUT__"
         },
         {
-          "name": "height",
-          "ioValue": 10
+          "name": "xDist",
+          "ioValue": -44
+        },
+        {
+          "name": "yDist",
+          "ioValue": 68
+        },
+        {
+          "name": "zDist",
+          "ioValue": 0
         }
       ]
+    },
+    {
+      "atomType": "Difference",
+      "x": 0.531084656084656,
+      "y": 0.5766016713091923,
+      "uniqueID": "id-885",
+      "ioValues": [
+        {
+          "name": "retain",
+          "ioValue": "__GEOMETRY_INPUT__"
+        },
+        {
+          "name": "remove",
+          "ioValue": "__GEOMETRY_INPUT__"
+        }
+      ]
+    },
+    {
+      "atomType": "GitHubMolecule",
+      "x": 0.5529100529100529,
+      "y": 0.7827298050139275,
+      "uniqueID": "id-900",
+      "name": "Concentric_Circles",
+      "ioValues": [
+        {
+          "name": "OD",
+          "ioValue": 149,
+          "currentEquation": "149"
+        },
+        {
+          "name": "ID",
+          "ioValue": 145
+        }
+      ],
+      "topLevel": false,
+      "allAtoms": [
+        {
+          "atomType": "Output",
+          "x": 0.98,
+          "y": 0.5,
+          "uniqueID": "id-894",
+          "ioValues": [
+            {
+              "name": "number or geometry",
+              "ioValue": "__GEOMETRY_INPUT__"
+            }
+          ]
+        },
+        {
+          "atomType": "Input",
+          "x": 0.025384615384615384,
+          "y": 0.15384615384615385,
+          "uniqueID": "id-895",
+          "name": "OD",
+          "type": "number"
+        },
+        {
+          "atomType": "Input",
+          "x": 0.025384615384615384,
+          "y": 0.24615384615384617,
+          "uniqueID": "id-896",
+          "name": "ID",
+          "type": "number"
+        },
+        {
+          "atomType": "Circle",
+          "x": 0.460559796437659,
+          "y": 0.42567567567567566,
+          "uniqueID": "id-897",
+          "ioValues": [
+            {
+              "name": "diameter",
+              "ioValue": 149
+            }
+          ]
+        },
+        {
+          "atomType": "Circle",
+          "x": 0.44529262086514,
+          "y": 0.7263513513513513,
+          "uniqueID": "id-898",
+          "ioValues": [
+            {
+              "name": "diameter",
+              "ioValue": 145
+            }
+          ]
+        },
+        {
+          "atomType": "Difference",
+          "x": 0.6615776081424937,
+          "y": 0.5506756756756757,
+          "uniqueID": "id-899",
+          "ioValues": [
+            {
+              "name": "retain",
+              "ioValue": "__GEOMETRY_INPUT__"
+            },
+            {
+              "name": "remove",
+              "ioValue": "__GEOMETRY_INPUT__"
+            }
+          ]
+        }
+      ],
+      "allConnectors": [
+        {
+          "ap2Name": "diameter",
+          "ap1ID": "id-895",
+          "ap2ID": "id-897"
+        },
+        {
+          "ap2Name": "diameter",
+          "ap1ID": "id-896",
+          "ap2ID": "id-898"
+        },
+        {
+          "ap2Name": "retain",
+          "ap1ID": "id-897",
+          "ap2ID": "id-899"
+        },
+        {
+          "ap2Name": "remove",
+          "ap1ID": "id-898",
+          "ap2ID": "id-899"
+        },
+        {
+          "ap2Name": "number or geometry",
+          "ap1ID": "id-899",
+          "ap2ID": "id-894"
+        }
+      ],
+      "parentRepo": {
+        "lastFoundGit": "2026-05-05T18:23:39.004Z",
+        "privateRepo": false,
+        "repoName": "Concentric_Circles",
+        "dateCreated": "2025-11-08T04:08:14Z",
+        "likes": 0,
+        "readMe": "https://raw.githubusercontent.com/BarbourSmith/Concentric_Circles/master/README.md?sanitize=true",
+        "yyyy": 2025,
+        "topMoleculeID": "id-1170",
+        "githubMoleculesUsed": [],
+        "html_url": "https://github.com/BarbourSmith/Concentric_Circles",
+        "topics": [],
+        "parentRepo": null,
+        "forks": 0,
+        "dateModified": "739563",
+        "ranking": 20.7,
+        "searchField": "concentric_circles barboursmith creates two concentric circles. the result is 2d ",
+        "owner": "BarbourSmith",
+        "description": "Creates two concentric circles. The result is 2D",
+        "contentURL": "https://raw.githubusercontent.com/BarbourSmith/Concentric_Circles/master/project.abundance?sanitize=true",
+        "svgURL": "https://raw.githubusercontent.com/BarbourSmith/Concentric_Circles/master/project.svg?sanitize=true",
+        "isLocal": false
+      },
+      "unitsKey": "Unitless",
+      "fileTypeVersion": 1,
+      "lastReloadedFromGithubAt": 1778015062323
     }
   ],
   "allConnectors": [
@@ -262,13 +532,28 @@
     },
     {
       "ap2Name": "number or geometry",
-      "ap1ID": "id-823",
+      "ap1ID": "id-784",
       "ap2ID": "id-780"
     },
     {
       "ap2Name": "geometry",
       "ap1ID": "id-823",
       "ap2ID": "id-826"
+    },
+    {
+      "ap2Name": "retain",
+      "ap1ID": "id-802",
+      "ap2ID": "id-885"
+    },
+    {
+      "ap2Name": "geometry",
+      "ap1ID": "id-869",
+      "ap2ID": "id-879"
+    },
+    {
+      "ap2Name": "remove",
+      "ap1ID": "id-879",
+      "ap2ID": "id-885"
     }
   ],
   "unitsKey": "MM",
