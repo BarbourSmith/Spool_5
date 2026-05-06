@@ -59,6 +59,30 @@
       ]
     },
     {
+      "atomType": "Rotate",
+      "x": 0.3802910052910053,
+      "y": 0.7799442896935932,
+      "uniqueID": "id-1364",
+      "ioValues": [
+        {
+          "name": "geometry",
+          "ioValue": "__GEOMETRY_INPUT__"
+        },
+        {
+          "name": "x-axis degrees",
+          "ioValue": 0
+        },
+        {
+          "name": "y-axis degrees",
+          "ioValue": 0
+        },
+        {
+          "name": "z-axis degrees",
+          "ioValue": 170
+        }
+      ]
+    },
+    {
       "atomType": "GitHubMolecule",
       "x": 0.25925925925925924,
       "y": 0.8495821727019498,
@@ -416,8 +440,7 @@
             },
             {
               "name": "xDist",
-              "ioValue": 250,
-              "currentEquation": "250"
+              "ioValue": 250
             },
             {
               "name": "yDist",
@@ -730,31 +753,6 @@
         }
       ],
       "fileTypeVersion": 1
-    },
-    {
-      "atomType": "Rotate",
-      "x": 0.3802910052910053,
-      "y": 0.7799442896935932,
-      "uniqueID": "id-1364",
-      "ioValues": [
-        {
-          "name": "geometry",
-          "ioValue": "__GEOMETRY_INPUT__"
-        },
-        {
-          "name": "x-axis degrees",
-          "ioValue": 0
-        },
-        {
-          "name": "y-axis degrees",
-          "ioValue": 0
-        },
-        {
-          "name": "z-axis degrees",
-          "ioValue": 170,
-          "currentEquation": "170"
-        }
-      ]
     }
   ],
   "allConnectors": [
@@ -770,6 +768,11 @@
     },
     {
       "ap2Name": "geometry",
+      "ap1ID": "id-1364",
+      "ap2ID": "id-879"
+    },
+    {
+      "ap2Name": "geometry",
       "ap1ID": "id-1148",
       "ap2ID": "id-1364"
     },
@@ -782,11 +785,6 @@
       "ap2Name": "retain",
       "ap1ID": "id-988",
       "ap2ID": "id-885"
-    },
-    {
-      "ap2Name": "geometry",
-      "ap1ID": "id-1364",
-      "ap2ID": "id-879"
     }
   ],
   "unitsKey": "MM",
