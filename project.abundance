@@ -165,6 +165,172 @@
       "lastReloadedFromGithubAt": 1778088835059
     },
     {
+      "atomType": "GitHubMolecule",
+      "x": 0.15873015873015872,
+      "y": 0.41782729805013924,
+      "uniqueID": "id-1274",
+      "name": "Ring_Gear",
+      "ioValues": [
+        {
+          "name": "Pitch",
+          "ioValue": 3.14
+        },
+        {
+          "name": "Number_Of_Teeth",
+          "ioValue": 138
+        },
+        {
+          "name": "Ring_Width",
+          "ioValue": 4
+        },
+        {
+          "name": "Thickness",
+          "ioValue": 6.4
+        },
+        {
+          "name": "Pressure_Angle",
+          "ioValue": 14.5
+        }
+      ],
+      "topLevel": false,
+      "allAtoms": [
+        {
+          "atomType": "Output",
+          "x": 0.98,
+          "y": 0.5,
+          "uniqueID": "id-1267",
+          "ioValues": [
+            {
+              "name": "number or geometry",
+              "ioValue": "__GEOMETRY_INPUT__"
+            }
+          ]
+        },
+        {
+          "atomType": "Input",
+          "x": 0.025384615384615384,
+          "y": 0.15384615384615385,
+          "uniqueID": "id-1268",
+          "name": "Pitch"
+        },
+        {
+          "atomType": "Input",
+          "x": 0.025384615384615384,
+          "y": 0.24615384615384617,
+          "uniqueID": "id-1269",
+          "name": "Number_Of_Teeth"
+        },
+        {
+          "atomType": "Input",
+          "x": 0.025384615384615384,
+          "y": 0.3384615384615385,
+          "uniqueID": "id-1270",
+          "name": "Ring_Width"
+        },
+        {
+          "atomType": "Input",
+          "x": 0.025384615384615384,
+          "y": 0.4307692307692308,
+          "uniqueID": "id-1271",
+          "name": "Thickness"
+        },
+        {
+          "atomType": "Input",
+          "x": 0.025384615384615384,
+          "y": 0.5230769230769231,
+          "uniqueID": "id-1272",
+          "name": "Pressure_Angle"
+        },
+        {
+          "atomType": "Code",
+          "x": 0.5112433862433863,
+          "y": 0.34818941504178275,
+          "uniqueID": "id-1273",
+          "ioValues": [
+            {
+              "name": "teeth",
+              "ioValue": 138
+            },
+            {
+              "name": "pitch",
+              "ioValue": 3.14
+            },
+            {
+              "name": "ringWidth",
+              "ioValue": 4
+            },
+            {
+              "name": "thickness",
+              "ioValue": 6.4
+            },
+            {
+              "name": "pressureAngle",
+              "ioValue": 14.5
+            }
+          ],
+          "interpreterVersion": 1,
+          "code": "/**\n * Internal (ring) gear with curved (spline) flanks. Each flank is split into\n * FLANK_SEGMENTS sub-splines with the exact analytic tangent fed to replicad\n * as a direction VECTOR at every junction (numbers would be interpreted as\n * degrees by replicad — vectors avoid that conversion).\n *\n * Same unified involute formulas as the external gear — the only difference\n * for internal teeth is that `orient` flips sign, so the involute curves\n * the opposite way (tooth gets WIDER outward toward the root).\n */\nfunction run(\n  teeth: number = 40,\n  pitch: number = 5,\n  ringWidth: number = 6,\n  thickness: number = 5,\n  pressureAngle: number = 20,\n) {\n  const N = Math.max(8, Math.round(teeth));\n  const m = pitch / Math.PI;\n  const alpha = (pressureAngle * Math.PI) / 180;\n  const pitchR = (N * pitch) / (2 * Math.PI);\n  const addRInt = pitchR - m;            // tip (inward)\n  const rootRInt = pitchR + 1.25 * m;     // root (outward)\n  const baseR = pitchR * Math.cos(alpha);\n  const outerR = rootRInt + ringWidth;\n\n  const inv = (a: number) => Math.tan(a) - a;\n  const invAtPitch = inv(alpha);\n  const halfToothPitch = Math.PI / (2 * N);\n  const toothAngle = (2 * Math.PI) / N;\n\n  const tRoot = Math.acos(Math.min(1, baseR / rootRInt));\n  const tipBelowBase = addRInt < baseR;\n  const tAdd = tipBelowBase ? 0 : Math.acos(Math.min(1, baseR / addRInt));\n\n  const FLANK_SEGMENTS = 3;     // sub-splines per flank — bump to 4–5 for tiny tooth counts\n\n  const P = (r: number, a: number): [number, number] => [r * Math.cos(a), r * Math.sin(a)];\n  // For internal teeth: left-flank orient = −1, right-flank orient = +1\n  // (opposite of external gear, where left = +1, right = −1).\n  const involutePt = (t: number, originA: number, orient: number): [number, number] =>\n    P(baseR / Math.cos(t), originA + orient * inv(t));\n  const tanVec = (t: number, originA: number, orient: number, traversalSign: number): [number, number] => {\n    const a = originA + orient * (inv(t) + t);\n    return [traversalSign * Math.cos(a), traversalSign * Math.sin(a)];\n  };\n\n  const samples: number[] = [];\n  for (let s = 0; s <= FLANK_SEGMENTS; s++) {\n    samples.push(tAdd + (tRoot - tAdd) * (s / FLANK_SEGMENTS));\n  }\n  // samples[0] = tAdd (tip, smaller r);  samples[FLANK_SEGMENTS] = tRoot (root, larger r)\n\n  // Start the toothed-hole outline at tooth 0's left flank, at root radius.\n  const startA0 = -halfToothPitch + invAtPitch - inv(tRoot);\n  let pen = replicad.draw(P(rootRInt, startA0));\n\n  for (let i = 0; i < N; i++) {\n    const c = i * toothAngle;\n    const leftStart = c - halfToothPitch + invAtPitch;\n    const rightStart = c + halfToothPitch - invAtPitch;\n\n    // ── Left flank: root → tip (t decreasing tRoot → tAdd) ──\n    for (let s = FLANK_SEGMENTS - 1; s >= 0; s--) {\n      const tA = samples[s + 1], tB = samples[s];\n      pen = pen.smoothSplineTo(involutePt(tB, leftStart, -1), {\n        startTangent: tanVec(tA, leftStart, -1, -1),\n        endTangent: tanVec(tB, leftStart, -1, -1),\n      });\n    }\n\n    // ── Tip: chord across (with radial bridges if tip dips below base circle) ──\n    if (tipBelowBase) {\n      pen = pen.lineTo(P(addRInt, leftStart));\n      pen = pen.lineTo(P(addRInt, rightStart));\n    } else {\n      pen = pen.lineTo(involutePt(tAdd, rightStart, +1));\n    }\n\n    // ── Right flank: tip → root (t increasing tAdd → tRoot) ──\n    for (let s = 1; s <= FLANK_SEGMENTS; s++) {\n      const tA = samples[s - 1], tB = samples[s];\n      pen = pen.smoothSplineTo(involutePt(tB, rightStart, +1), {\n        startTangent: tanVec(tA, rightStart, +1, +1),\n        endTangent: tanVec(tB, rightStart, +1, +1),\n      });\n    }\n\n    // ── Gap arc on root circle to next tooth (close() handles the last) ──\n    if (i < N - 1) {\n      const arcStartA = rightStart + inv(tRoot);\n      const nextLeft = (i + 1) * toothAngle - halfToothPitch + invAtPitch;\n      const arcEndA = nextLeft - inv(tRoot);\n      const arcMidA = (arcStartA + arcEndA) / 2;\n      pen = pen.threePointsArcTo(P(rootRInt, arcEndA), P(rootRInt, arcMidA));\n    }\n  }\n\n  const innerHole = pen.close();\n  const outerDisk = replicad.drawCircle(outerR);\n  const ring2D = outerDisk.cut(innerHole);\n  return ring2D.sketchOnPlane().extrude(thickness);\n}",
+          "compiledCode": "\"use strict\";\n/**\n * Internal (ring) gear with curved (spline) flanks. Each flank is split into\n * FLANK_SEGMENTS sub-splines with the exact analytic tangent fed to replicad\n * as a direction VECTOR at every junction (numbers would be interpreted as\n * degrees by replicad — vectors avoid that conversion).\n *\n * Same unified involute formulas as the external gear — the only difference\n * for internal teeth is that `orient` flips sign, so the involute curves\n * the opposite way (tooth gets WIDER outward toward the root).\n */\nfunction run(teeth = 40, pitch = 5, ringWidth = 6, thickness = 5, pressureAngle = 20) {\n    const N = Math.max(8, Math.round(teeth));\n    const m = pitch / Math.PI;\n    const alpha = (pressureAngle * Math.PI) / 180;\n    const pitchR = (N * pitch) / (2 * Math.PI);\n    const addRInt = pitchR - m; // tip (inward)\n    const rootRInt = pitchR + 1.25 * m; // root (outward)\n    const baseR = pitchR * Math.cos(alpha);\n    const outerR = rootRInt + ringWidth;\n    const inv = (a) => Math.tan(a) - a;\n    const invAtPitch = inv(alpha);\n    const halfToothPitch = Math.PI / (2 * N);\n    const toothAngle = (2 * Math.PI) / N;\n    const tRoot = Math.acos(Math.min(1, baseR / rootRInt));\n    const tipBelowBase = addRInt < baseR;\n    const tAdd = tipBelowBase ? 0 : Math.acos(Math.min(1, baseR / addRInt));\n    const FLANK_SEGMENTS = 3; // sub-splines per flank — bump to 4–5 for tiny tooth counts\n    const P = (r, a) => [r * Math.cos(a), r * Math.sin(a)];\n    // For internal teeth: left-flank orient = −1, right-flank orient = +1\n    // (opposite of external gear, where left = +1, right = −1).\n    const involutePt = (t, originA, orient) => P(baseR / Math.cos(t), originA + orient * inv(t));\n    const tanVec = (t, originA, orient, traversalSign) => {\n        const a = originA + orient * (inv(t) + t);\n        return [traversalSign * Math.cos(a), traversalSign * Math.sin(a)];\n    };\n    const samples = [];\n    for (let s = 0; s <= FLANK_SEGMENTS; s++) {\n        samples.push(tAdd + (tRoot - tAdd) * (s / FLANK_SEGMENTS));\n    }\n    // samples[0] = tAdd (tip, smaller r);  samples[FLANK_SEGMENTS] = tRoot (root, larger r)\n    // Start the toothed-hole outline at tooth 0's left flank, at root radius.\n    const startA0 = -halfToothPitch + invAtPitch - inv(tRoot);\n    let pen = replicad.draw(P(rootRInt, startA0));\n    for (let i = 0; i < N; i++) {\n        const c = i * toothAngle;\n        const leftStart = c - halfToothPitch + invAtPitch;\n        const rightStart = c + halfToothPitch - invAtPitch;\n        // ── Left flank: root → tip (t decreasing tRoot → tAdd) ──\n        for (let s = FLANK_SEGMENTS - 1; s >= 0; s--) {\n            const tA = samples[s + 1], tB = samples[s];\n            pen = pen.smoothSplineTo(involutePt(tB, leftStart, -1), {\n                startTangent: tanVec(tA, leftStart, -1, -1),\n                endTangent: tanVec(tB, leftStart, -1, -1),\n            });\n        }\n        // ── Tip: chord across (with radial bridges if tip dips below base circle) ──\n        if (tipBelowBase) {\n            pen = pen.lineTo(P(addRInt, leftStart));\n            pen = pen.lineTo(P(addRInt, rightStart));\n        }\n        else {\n            pen = pen.lineTo(involutePt(tAdd, rightStart, +1));\n        }\n        // ── Right flank: tip → root (t increasing tAdd → tRoot) ──\n        for (let s = 1; s <= FLANK_SEGMENTS; s++) {\n            const tA = samples[s - 1], tB = samples[s];\n            pen = pen.smoothSplineTo(involutePt(tB, rightStart, +1), {\n                startTangent: tanVec(tA, rightStart, +1, +1),\n                endTangent: tanVec(tB, rightStart, +1, +1),\n            });\n        }\n        // ── Gap arc on root circle to next tooth (close() handles the last) ──\n        if (i < N - 1) {\n            const arcStartA = rightStart + inv(tRoot);\n            const nextLeft = (i + 1) * toothAngle - halfToothPitch + invAtPitch;\n            const arcEndA = nextLeft - inv(tRoot);\n            const arcMidA = (arcStartA + arcEndA) / 2;\n            pen = pen.threePointsArcTo(P(rootRInt, arcEndA), P(rootRInt, arcMidA));\n        }\n    }\n    const innerHole = pen.close();\n    const outerDisk = replicad.drawCircle(outerR);\n    const ring2D = outerDisk.cut(innerHole);\n    return ring2D.sketchOnPlane().extrude(thickness);\n}\n"
+        }
+      ],
+      "allConnectors": [
+        {
+          "ap2Name": "pitch",
+          "ap1ID": "id-1268",
+          "ap2ID": "id-1273"
+        },
+        {
+          "ap2Name": "teeth",
+          "ap1ID": "id-1269",
+          "ap2ID": "id-1273"
+        },
+        {
+          "ap2Name": "ringWidth",
+          "ap1ID": "id-1270",
+          "ap2ID": "id-1273"
+        },
+        {
+          "ap2Name": "thickness",
+          "ap1ID": "id-1271",
+          "ap2ID": "id-1273"
+        },
+        {
+          "ap2Name": "pressureAngle",
+          "ap1ID": "id-1272",
+          "ap2ID": "id-1273"
+        },
+        {
+          "ap2Name": "number or geometry",
+          "ap1ID": "id-1273",
+          "ap2ID": "id-1267"
+        }
+      ],
+      "parentRepo": {
+        "privateRepo": false,
+        "repoName": "Ring_Gear",
+        "dateCreated": "2026-05-05T20:23:53Z",
+        "readMe": "https://raw.githubusercontent.com/BarbourSmith/Ring_Gear/master/README.md?sanitize=true",
+        "yyyy": 2026,
+        "topMoleculeID": "id-713",
+        "githubMoleculesUsed": [],
+        "html_url": "https://github.com/BarbourSmith/Ring_Gear",
+        "topics": [],
+        "parentRepo": null,
+        "forks": 0,
+        "dateModified": "739741",
+        "ranking": 0,
+        "searchField": "ring_gear barboursmith generates a ring gear with teeth on the inside ",
+        "owner": "BarbourSmith",
+        "description": "Generates a ring gear with teeth on the inside",
+        "contentURL": "https://raw.githubusercontent.com/BarbourSmith/Ring_Gear/master/project.abundance?sanitize=true",
+        "svgURL": "https://raw.githubusercontent.com/BarbourSmith/Ring_Gear/master/project.svg?sanitize=true",
+        "isLocal": false
+      },
+      "unitsKey": "Unitless",
+      "fileTypeVersion": 1,
+      "lastReloadedFromGithubAt": 1778091019101
+    },
+    {
       "atomType": "Molecule",
       "x": 0.3313492063492064,
       "y": 0.34818941504178275,
@@ -563,172 +729,6 @@
         }
       ],
       "fileTypeVersion": 1
-    },
-    {
-      "atomType": "GitHubMolecule",
-      "x": 0.15873015873015872,
-      "y": 0.41782729805013924,
-      "uniqueID": "id-1274",
-      "name": "Ring_Gear",
-      "ioValues": [
-        {
-          "name": "Pitch",
-          "ioValue": 3.14
-        },
-        {
-          "name": "Number_Of_Teeth",
-          "ioValue": 138
-        },
-        {
-          "name": "Ring_Width",
-          "ioValue": 4
-        },
-        {
-          "name": "Thickness",
-          "ioValue": 6.4
-        },
-        {
-          "name": "Pressure_Angle",
-          "ioValue": 14.5
-        }
-      ],
-      "topLevel": false,
-      "allAtoms": [
-        {
-          "atomType": "Output",
-          "x": 0.98,
-          "y": 0.5,
-          "uniqueID": "id-1267",
-          "ioValues": [
-            {
-              "name": "number or geometry",
-              "ioValue": "__GEOMETRY_INPUT__"
-            }
-          ]
-        },
-        {
-          "atomType": "Input",
-          "x": 0.025384615384615384,
-          "y": 0.15384615384615385,
-          "uniqueID": "id-1268",
-          "name": "Pitch"
-        },
-        {
-          "atomType": "Input",
-          "x": 0.025384615384615384,
-          "y": 0.24615384615384617,
-          "uniqueID": "id-1269",
-          "name": "Number_Of_Teeth"
-        },
-        {
-          "atomType": "Input",
-          "x": 0.025384615384615384,
-          "y": 0.3384615384615385,
-          "uniqueID": "id-1270",
-          "name": "Ring_Width"
-        },
-        {
-          "atomType": "Input",
-          "x": 0.025384615384615384,
-          "y": 0.4307692307692308,
-          "uniqueID": "id-1271",
-          "name": "Thickness"
-        },
-        {
-          "atomType": "Input",
-          "x": 0.025384615384615384,
-          "y": 0.5230769230769231,
-          "uniqueID": "id-1272",
-          "name": "Pressure_Angle"
-        },
-        {
-          "atomType": "Code",
-          "x": 0.5112433862433863,
-          "y": 0.34818941504178275,
-          "uniqueID": "id-1273",
-          "ioValues": [
-            {
-              "name": "teeth",
-              "ioValue": 138
-            },
-            {
-              "name": "pitch",
-              "ioValue": 3.14
-            },
-            {
-              "name": "ringWidth",
-              "ioValue": 4
-            },
-            {
-              "name": "thickness",
-              "ioValue": 6.4
-            },
-            {
-              "name": "pressureAngle",
-              "ioValue": 14.5
-            }
-          ],
-          "interpreterVersion": 1,
-          "code": "/**\n * Internal (ring) gear with curved (spline) flanks. Each flank is split into\n * FLANK_SEGMENTS sub-splines with the exact analytic tangent fed to replicad\n * as a direction VECTOR at every junction (numbers would be interpreted as\n * degrees by replicad — vectors avoid that conversion).\n *\n * Same unified involute formulas as the external gear — the only difference\n * for internal teeth is that `orient` flips sign, so the involute curves\n * the opposite way (tooth gets WIDER outward toward the root).\n */\nfunction run(\n  teeth: number = 40,\n  pitch: number = 5,\n  ringWidth: number = 6,\n  thickness: number = 5,\n  pressureAngle: number = 20,\n) {\n  const N = Math.max(8, Math.round(teeth));\n  const m = pitch / Math.PI;\n  const alpha = (pressureAngle * Math.PI) / 180;\n  const pitchR = (N * pitch) / (2 * Math.PI);\n  const addRInt = pitchR - m;            // tip (inward)\n  const rootRInt = pitchR + 1.25 * m;     // root (outward)\n  const baseR = pitchR * Math.cos(alpha);\n  const outerR = rootRInt + ringWidth;\n\n  const inv = (a: number) => Math.tan(a) - a;\n  const invAtPitch = inv(alpha);\n  const halfToothPitch = Math.PI / (2 * N);\n  const toothAngle = (2 * Math.PI) / N;\n\n  const tRoot = Math.acos(Math.min(1, baseR / rootRInt));\n  const tipBelowBase = addRInt < baseR;\n  const tAdd = tipBelowBase ? 0 : Math.acos(Math.min(1, baseR / addRInt));\n\n  const FLANK_SEGMENTS = 3;     // sub-splines per flank — bump to 4–5 for tiny tooth counts\n\n  const P = (r: number, a: number): [number, number] => [r * Math.cos(a), r * Math.sin(a)];\n  // For internal teeth: left-flank orient = −1, right-flank orient = +1\n  // (opposite of external gear, where left = +1, right = −1).\n  const involutePt = (t: number, originA: number, orient: number): [number, number] =>\n    P(baseR / Math.cos(t), originA + orient * inv(t));\n  const tanVec = (t: number, originA: number, orient: number, traversalSign: number): [number, number] => {\n    const a = originA + orient * (inv(t) + t);\n    return [traversalSign * Math.cos(a), traversalSign * Math.sin(a)];\n  };\n\n  const samples: number[] = [];\n  for (let s = 0; s <= FLANK_SEGMENTS; s++) {\n    samples.push(tAdd + (tRoot - tAdd) * (s / FLANK_SEGMENTS));\n  }\n  // samples[0] = tAdd (tip, smaller r);  samples[FLANK_SEGMENTS] = tRoot (root, larger r)\n\n  // Start the toothed-hole outline at tooth 0's left flank, at root radius.\n  const startA0 = -halfToothPitch + invAtPitch - inv(tRoot);\n  let pen = replicad.draw(P(rootRInt, startA0));\n\n  for (let i = 0; i < N; i++) {\n    const c = i * toothAngle;\n    const leftStart = c - halfToothPitch + invAtPitch;\n    const rightStart = c + halfToothPitch - invAtPitch;\n\n    // ── Left flank: root → tip (t decreasing tRoot → tAdd) ──\n    for (let s = FLANK_SEGMENTS - 1; s >= 0; s--) {\n      const tA = samples[s + 1], tB = samples[s];\n      pen = pen.smoothSplineTo(involutePt(tB, leftStart, -1), {\n        startTangent: tanVec(tA, leftStart, -1, -1),\n        endTangent: tanVec(tB, leftStart, -1, -1),\n      });\n    }\n\n    // ── Tip: chord across (with radial bridges if tip dips below base circle) ──\n    if (tipBelowBase) {\n      pen = pen.lineTo(P(addRInt, leftStart));\n      pen = pen.lineTo(P(addRInt, rightStart));\n    } else {\n      pen = pen.lineTo(involutePt(tAdd, rightStart, +1));\n    }\n\n    // ── Right flank: tip → root (t increasing tAdd → tRoot) ──\n    for (let s = 1; s <= FLANK_SEGMENTS; s++) {\n      const tA = samples[s - 1], tB = samples[s];\n      pen = pen.smoothSplineTo(involutePt(tB, rightStart, +1), {\n        startTangent: tanVec(tA, rightStart, +1, +1),\n        endTangent: tanVec(tB, rightStart, +1, +1),\n      });\n    }\n\n    // ── Gap arc on root circle to next tooth (close() handles the last) ──\n    if (i < N - 1) {\n      const arcStartA = rightStart + inv(tRoot);\n      const nextLeft = (i + 1) * toothAngle - halfToothPitch + invAtPitch;\n      const arcEndA = nextLeft - inv(tRoot);\n      const arcMidA = (arcStartA + arcEndA) / 2;\n      pen = pen.threePointsArcTo(P(rootRInt, arcEndA), P(rootRInt, arcMidA));\n    }\n  }\n\n  const innerHole = pen.close();\n  const outerDisk = replicad.drawCircle(outerR);\n  const ring2D = outerDisk.cut(innerHole);\n  return ring2D.sketchOnPlane().extrude(thickness);\n}",
-          "compiledCode": "\"use strict\";\n/**\n * Internal (ring) gear with curved (spline) flanks. Each flank is split into\n * FLANK_SEGMENTS sub-splines with the exact analytic tangent fed to replicad\n * as a direction VECTOR at every junction (numbers would be interpreted as\n * degrees by replicad — vectors avoid that conversion).\n *\n * Same unified involute formulas as the external gear — the only difference\n * for internal teeth is that `orient` flips sign, so the involute curves\n * the opposite way (tooth gets WIDER outward toward the root).\n */\nfunction run(teeth = 40, pitch = 5, ringWidth = 6, thickness = 5, pressureAngle = 20) {\n    const N = Math.max(8, Math.round(teeth));\n    const m = pitch / Math.PI;\n    const alpha = (pressureAngle * Math.PI) / 180;\n    const pitchR = (N * pitch) / (2 * Math.PI);\n    const addRInt = pitchR - m; // tip (inward)\n    const rootRInt = pitchR + 1.25 * m; // root (outward)\n    const baseR = pitchR * Math.cos(alpha);\n    const outerR = rootRInt + ringWidth;\n    const inv = (a) => Math.tan(a) - a;\n    const invAtPitch = inv(alpha);\n    const halfToothPitch = Math.PI / (2 * N);\n    const toothAngle = (2 * Math.PI) / N;\n    const tRoot = Math.acos(Math.min(1, baseR / rootRInt));\n    const tipBelowBase = addRInt < baseR;\n    const tAdd = tipBelowBase ? 0 : Math.acos(Math.min(1, baseR / addRInt));\n    const FLANK_SEGMENTS = 3; // sub-splines per flank — bump to 4–5 for tiny tooth counts\n    const P = (r, a) => [r * Math.cos(a), r * Math.sin(a)];\n    // For internal teeth: left-flank orient = −1, right-flank orient = +1\n    // (opposite of external gear, where left = +1, right = −1).\n    const involutePt = (t, originA, orient) => P(baseR / Math.cos(t), originA + orient * inv(t));\n    const tanVec = (t, originA, orient, traversalSign) => {\n        const a = originA + orient * (inv(t) + t);\n        return [traversalSign * Math.cos(a), traversalSign * Math.sin(a)];\n    };\n    const samples = [];\n    for (let s = 0; s <= FLANK_SEGMENTS; s++) {\n        samples.push(tAdd + (tRoot - tAdd) * (s / FLANK_SEGMENTS));\n    }\n    // samples[0] = tAdd (tip, smaller r);  samples[FLANK_SEGMENTS] = tRoot (root, larger r)\n    // Start the toothed-hole outline at tooth 0's left flank, at root radius.\n    const startA0 = -halfToothPitch + invAtPitch - inv(tRoot);\n    let pen = replicad.draw(P(rootRInt, startA0));\n    for (let i = 0; i < N; i++) {\n        const c = i * toothAngle;\n        const leftStart = c - halfToothPitch + invAtPitch;\n        const rightStart = c + halfToothPitch - invAtPitch;\n        // ── Left flank: root → tip (t decreasing tRoot → tAdd) ──\n        for (let s = FLANK_SEGMENTS - 1; s >= 0; s--) {\n            const tA = samples[s + 1], tB = samples[s];\n            pen = pen.smoothSplineTo(involutePt(tB, leftStart, -1), {\n                startTangent: tanVec(tA, leftStart, -1, -1),\n                endTangent: tanVec(tB, leftStart, -1, -1),\n            });\n        }\n        // ── Tip: chord across (with radial bridges if tip dips below base circle) ──\n        if (tipBelowBase) {\n            pen = pen.lineTo(P(addRInt, leftStart));\n            pen = pen.lineTo(P(addRInt, rightStart));\n        }\n        else {\n            pen = pen.lineTo(involutePt(tAdd, rightStart, +1));\n        }\n        // ── Right flank: tip → root (t increasing tAdd → tRoot) ──\n        for (let s = 1; s <= FLANK_SEGMENTS; s++) {\n            const tA = samples[s - 1], tB = samples[s];\n            pen = pen.smoothSplineTo(involutePt(tB, rightStart, +1), {\n                startTangent: tanVec(tA, rightStart, +1, +1),\n                endTangent: tanVec(tB, rightStart, +1, +1),\n            });\n        }\n        // ── Gap arc on root circle to next tooth (close() handles the last) ──\n        if (i < N - 1) {\n            const arcStartA = rightStart + inv(tRoot);\n            const nextLeft = (i + 1) * toothAngle - halfToothPitch + invAtPitch;\n            const arcEndA = nextLeft - inv(tRoot);\n            const arcMidA = (arcStartA + arcEndA) / 2;\n            pen = pen.threePointsArcTo(P(rootRInt, arcEndA), P(rootRInt, arcMidA));\n        }\n    }\n    const innerHole = pen.close();\n    const outerDisk = replicad.drawCircle(outerR);\n    const ring2D = outerDisk.cut(innerHole);\n    return ring2D.sketchOnPlane().extrude(thickness);\n}\n"
-        }
-      ],
-      "allConnectors": [
-        {
-          "ap2Name": "pitch",
-          "ap1ID": "id-1268",
-          "ap2ID": "id-1273"
-        },
-        {
-          "ap2Name": "teeth",
-          "ap1ID": "id-1269",
-          "ap2ID": "id-1273"
-        },
-        {
-          "ap2Name": "ringWidth",
-          "ap1ID": "id-1270",
-          "ap2ID": "id-1273"
-        },
-        {
-          "ap2Name": "thickness",
-          "ap1ID": "id-1271",
-          "ap2ID": "id-1273"
-        },
-        {
-          "ap2Name": "pressureAngle",
-          "ap1ID": "id-1272",
-          "ap2ID": "id-1273"
-        },
-        {
-          "ap2Name": "number or geometry",
-          "ap1ID": "id-1273",
-          "ap2ID": "id-1267"
-        }
-      ],
-      "parentRepo": {
-        "privateRepo": false,
-        "repoName": "Ring_Gear",
-        "dateCreated": "2026-05-05T20:23:53Z",
-        "readMe": "https://raw.githubusercontent.com/BarbourSmith/Ring_Gear/master/README.md?sanitize=true",
-        "yyyy": 2026,
-        "topMoleculeID": "id-713",
-        "githubMoleculesUsed": [],
-        "html_url": "https://github.com/BarbourSmith/Ring_Gear",
-        "topics": [],
-        "parentRepo": null,
-        "forks": 0,
-        "dateModified": "739741",
-        "ranking": 0,
-        "searchField": "ring_gear barboursmith generates a ring gear with teeth on the inside ",
-        "owner": "BarbourSmith",
-        "description": "Generates a ring gear with teeth on the inside",
-        "contentURL": "https://raw.githubusercontent.com/BarbourSmith/Ring_Gear/master/project.abundance?sanitize=true",
-        "svgURL": "https://raw.githubusercontent.com/BarbourSmith/Ring_Gear/master/project.svg?sanitize=true",
-        "isLocal": false
-      },
-      "unitsKey": "Unitless",
-      "fileTypeVersion": 1,
-      "lastReloadedFromGithubAt": 1778091019101
     }
   ],
   "allConnectors": [
@@ -748,14 +748,14 @@
       "ap2ID": "id-879"
     },
     {
-      "ap2Name": "retain",
-      "ap1ID": "id-988",
-      "ap2ID": "id-885"
-    },
-    {
       "ap2Name": "input",
       "ap1ID": "id-1274",
       "ap2ID": "id-988"
+    },
+    {
+      "ap2Name": "retain",
+      "ap1ID": "id-988",
+      "ap2ID": "id-885"
     }
   ],
   "unitsKey": "MM",
