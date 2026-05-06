@@ -60,31 +60,18 @@
     },
     {
       "atomType": "GitHubMolecule",
-      "x": 0.15145502645502645,
-      "y": 0.4233983286908078,
-      "uniqueID": "id-802",
-      "name": "Ring_Gear",
+      "x": 0.2599206349206349,
+      "y": 0.8440111420612814,
+      "uniqueID": "id-1148",
+      "name": "2GT_Belt",
       "ioValues": [
         {
-          "name": "Pitch",
-          "ioValue": 3.14
-        },
-        {
-          "name": "Number_Of_Teeth",
-          "ioValue": 138
-        },
-        {
-          "name": "Ring_Width",
-          "ioValue": 4
+          "name": "Number_of_Teeth",
+          "ioValue": 10
         },
         {
           "name": "Thickness",
-          "ioValue": 6.4
-        },
-        {
-          "name": "Pressure_Angle",
-          "ioValue": 14.5,
-          "currentEquation": "14.5"
+          "ioValue": 10
         }
       ],
       "topLevel": false,
@@ -93,7 +80,7 @@
           "atomType": "Output",
           "x": 0.98,
           "y": 0.5,
-          "uniqueID": "id-795",
+          "uniqueID": "id-1144",
           "ioValues": [
             {
               "name": "number or geometry",
@@ -103,127 +90,79 @@
         },
         {
           "atomType": "Code",
-          "x": 0.5085978835978836,
-          "y": 0.3899721448467966,
-          "uniqueID": "id-796",
+          "x": 0.39153439153439157,
+          "y": 0.5793871866295265,
+          "uniqueID": "id-1145",
           "ioValues": [
             {
-              "name": "teeth",
-              "ioValue": 138
+              "name": "numberOfTeeth",
+              "ioValue": 10
             },
             {
-              "name": "pitch",
-              "ioValue": 3.14
-            },
-            {
-              "name": "ringWidth",
-              "ioValue": 4
-            },
-            {
-              "name": "thickness",
-              "ioValue": 6.4
-            },
-            {
-              "name": "pressureAngle",
-              "ioValue": 14.5
+              "name": "width",
+              "ioValue": 10
             }
           ],
           "interpreterVersion": 1,
-          "code": "/**\n * Internal (ring) gear with involute teeth on the inside surface.\n * Meshes with an external gear that has the same `pitch` and `pressureAngle`.\n *\n * Tip points inward to addR = pitchR - module; root extends outward to\n * pitchR + 1.25*module; an outer ring of `ringWidth` carries the body.\n */\nfunction run(\n  teeth: number = 40,\n  pitch: number = 5,\n  ringWidth: number = 6,\n  thickness: number = 5,\n  pressureAngle: number = 20,\n) {\n  const N = Math.max(8, Math.round(teeth));\n  const m = pitch / Math.PI;                              // module\n  const alpha = (pressureAngle * Math.PI) / 180;\n  const pitchR = (N * pitch) / (2 * Math.PI);\n  const addRInt = pitchR - m;                            // inner tooth tip\n  const rootRInt = pitchR + 1.25 * m;                     // outer tooth root\n  const baseR = pitchR * Math.cos(alpha);              // involute base circle\n  const outerR = rootRInt + ringWidth;                  // ring OD\n\n  const inv = (a: number) => Math.tan(a) - a;\n  const invAtPitch = inv(alpha);\n  const halfToothPitch = Math.PI / (2 * N);\n\n  const tRoot = Math.acos(Math.min(1, baseR / rootRInt));\n  const tipBelowBase = addRInt < baseR;                   // small N → involute can't reach tip\n  const tAdd = tipBelowBase ? 0 : Math.acos(Math.min(1, baseR / addRInt));\n\n  const steps = 16;\n  const arcSteps = 6;\n  const toothAngle = (2 * Math.PI) / N;\n  const pts: [number, number][] = [];\n\n  for (let i = 0; i < N; i++) {\n    const c = i * toothAngle;\n    // Internal involute curves opposite to external — flip the sign of inv(t).\n    const leftStart = c - halfToothPitch + invAtPitch;\n    const rightStart = c + halfToothPitch - invAtPitch;\n\n    // Left flank: rootR_int → addR_int (inward)\n    for (let s = 0; s <= steps; s++) {\n      const t = tRoot - (tRoot - tAdd) * (s / steps);\n      const r = baseR / Math.cos(t);\n      const ang = leftStart - inv(t);\n      pts.push([r * Math.cos(ang), r * Math.sin(ang)]);\n    }\n    // Bridge to addR_int with radials when the involute can't reach it\n    if (tipBelowBase) {\n      pts.push([addRInt * Math.cos(leftStart), addRInt * Math.sin(leftStart)]);\n      pts.push([addRInt * Math.cos(rightStart), addRInt * Math.sin(rightStart)]);\n    }\n    // Right flank: addR_int → rootR_int (outward)\n    for (let s = 0; s <= steps; s++) {\n      const t = tAdd + (tRoot - tAdd) * (s / steps);\n      const r = baseR / Math.cos(t);\n      const ang = rightStart + inv(t);\n      pts.push([r * Math.cos(ang), r * Math.sin(ang)]);\n    }\n    // Arc along rootR_int to next tooth — interior points only (endpoints come\n    // from the adjacent flanks, avoiding duplicates).\n    const arcStart = c + halfToothPitch - invAtPitch + inv(tRoot);\n    const arcEnd = c + toothAngle - halfToothPitch + invAtPitch - inv(tRoot);\n    for (let s = 1; s < arcSteps; s++) {\n      const ang = arcStart + (arcEnd - arcStart) * (s / arcSteps);\n      pts.push([rootRInt * Math.cos(ang), rootRInt * Math.sin(ang)]);\n    }\n  }\n\n  let pen = replicad.draw(pts[0]);\n  for (let i = 1; i < pts.length; i++) pen = pen.lineTo(pts[i]);\n  const innerHole = pen.close();\n\n  const outerDisk = replicad.drawCircle(outerR);\n  const ring2D = outerDisk.cut(innerHole);\n\n  return ring2D.sketchOnPlane().extrude(thickness);\n}",
-          "compiledCode": "\"use strict\";\n/**\n * Internal (ring) gear with involute teeth on the inside surface.\n * Meshes with an external gear that has the same `pitch` and `pressureAngle`.\n *\n * Tip points inward to addR = pitchR - module; root extends outward to\n * pitchR + 1.25*module; an outer ring of `ringWidth` carries the body.\n */\nfunction run(teeth = 40, pitch = 5, ringWidth = 6, thickness = 5, pressureAngle = 20) {\n    const N = Math.max(8, Math.round(teeth));\n    const m = pitch / Math.PI; // module\n    const alpha = (pressureAngle * Math.PI) / 180;\n    const pitchR = (N * pitch) / (2 * Math.PI);\n    const addRInt = pitchR - m; // inner tooth tip\n    const rootRInt = pitchR + 1.25 * m; // outer tooth root\n    const baseR = pitchR * Math.cos(alpha); // involute base circle\n    const outerR = rootRInt + ringWidth; // ring OD\n    const inv = (a) => Math.tan(a) - a;\n    const invAtPitch = inv(alpha);\n    const halfToothPitch = Math.PI / (2 * N);\n    const tRoot = Math.acos(Math.min(1, baseR / rootRInt));\n    const tipBelowBase = addRInt < baseR; // small N → involute can't reach tip\n    const tAdd = tipBelowBase ? 0 : Math.acos(Math.min(1, baseR / addRInt));\n    const steps = 16;\n    const arcSteps = 6;\n    const toothAngle = (2 * Math.PI) / N;\n    const pts = [];\n    for (let i = 0; i < N; i++) {\n        const c = i * toothAngle;\n        // Internal involute curves opposite to external — flip the sign of inv(t).\n        const leftStart = c - halfToothPitch + invAtPitch;\n        const rightStart = c + halfToothPitch - invAtPitch;\n        // Left flank: rootR_int → addR_int (inward)\n        for (let s = 0; s <= steps; s++) {\n            const t = tRoot - (tRoot - tAdd) * (s / steps);\n            const r = baseR / Math.cos(t);\n            const ang = leftStart - inv(t);\n            pts.push([r * Math.cos(ang), r * Math.sin(ang)]);\n        }\n        // Bridge to addR_int with radials when the involute can't reach it\n        if (tipBelowBase) {\n            pts.push([addRInt * Math.cos(leftStart), addRInt * Math.sin(leftStart)]);\n            pts.push([addRInt * Math.cos(rightStart), addRInt * Math.sin(rightStart)]);\n        }\n        // Right flank: addR_int → rootR_int (outward)\n        for (let s = 0; s <= steps; s++) {\n            const t = tAdd + (tRoot - tAdd) * (s / steps);\n            const r = baseR / Math.cos(t);\n            const ang = rightStart + inv(t);\n            pts.push([r * Math.cos(ang), r * Math.sin(ang)]);\n        }\n        // Arc along rootR_int to next tooth — interior points only (endpoints come\n        // from the adjacent flanks, avoiding duplicates).\n        const arcStart = c + halfToothPitch - invAtPitch + inv(tRoot);\n        const arcEnd = c + toothAngle - halfToothPitch + invAtPitch - inv(tRoot);\n        for (let s = 1; s < arcSteps; s++) {\n            const ang = arcStart + (arcEnd - arcStart) * (s / arcSteps);\n            pts.push([rootRInt * Math.cos(ang), rootRInt * Math.sin(ang)]);\n        }\n    }\n    let pen = replicad.draw(pts[0]);\n    for (let i = 1; i < pts.length; i++)\n        pen = pen.lineTo(pts[i]);\n    const innerHole = pen.close();\n    const outerDisk = replicad.drawCircle(outerR);\n    const ring2D = outerDisk.cut(innerHole);\n    return ring2D.sketchOnPlane().extrude(thickness);\n}\n"
+          "code": "/**\n * Straight length of 2GT (GT2) timing belt.\n * 2mm tooth pitch, ~0.75mm tooth depth, 1.38mm total belt thickness.\n * Belt extends along +X starting at the origin; teeth point toward -Y.\n * Width parameter controls the extrusion (belt face width).\n */\nfunction run(numberOfTeeth: number = 20, width: number = 6) {\n  const N = Math.max(1, Math.round(numberOfTeeth));\n  const pitch = 2.0;    // GT2 tooth pitch\n  const toothWidth = 1.15;   // chord width at pitch line\n  const toothDepth = 0.75;   // tip below pitch line\n  const beltThickness = 1.38;   // total belt thickness (back to tooth tip)\n  const pitchY = toothDepth;     // y of pitch line (tip is at y=0)\n  const backY = beltThickness;  // y of belt back\n  const arcSteps = 16;           // segments per tooth flank\n  const L = N * pitch;\n\n  // CCW outline: start top-left, down the left edge, rightward across the\n  // toothed bottom, up the right edge, then close along the top.\n  let pen = replicad.draw([0, backY]);\n  pen = pen.lineTo([0, pitchY]);\n\n  for (let i = 0; i < N; i++) {\n    const xc = (i + 0.5) * pitch;\n    const xLeft = xc - toothWidth / 2;\n\n    // Flat from previous tooth (or x=0) up to this tooth's left edge\n    pen = pen.lineTo([xLeft, pitchY]);\n\n    // Tooth dip — half-ellipse from (xLeft, pitchY) through (xc, 0) to\n    // (xRight, pitchY). Parametrising by θ ∈ [0,π] keeps x monotonic so the\n    // outline never self-intersects:\n    //   x(θ) = xc − (w/2)·cos θ\n    //   y(θ) = pitchY − depth·sin θ\n    for (let s = 1; s <= arcSteps; s++) {\n      const theta = Math.PI * (s / arcSteps);\n      const x = xc - (toothWidth / 2) * Math.cos(theta);\n      const y = pitchY - toothDepth * Math.sin(theta);\n      pen = pen.lineTo([x, y]);\n    }\n  }\n\n  // Trailing flat to the right edge, then up and close\n  pen = pen.lineTo([L, pitchY]);\n  pen = pen.lineTo([L, backY]);\n  const crossSection = pen.close();\n\n  return crossSection.sketchOnPlane().extrude(width);\n}",
+          "compiledCode": "\"use strict\";\n/**\n * Straight length of 2GT (GT2) timing belt.\n * 2mm tooth pitch, ~0.75mm tooth depth, 1.38mm total belt thickness.\n * Belt extends along +X starting at the origin; teeth point toward -Y.\n * Width parameter controls the extrusion (belt face width).\n */\nfunction run(numberOfTeeth = 20, width = 6) {\n    const N = Math.max(1, Math.round(numberOfTeeth));\n    const pitch = 2.0; // GT2 tooth pitch\n    const toothWidth = 1.15; // chord width at pitch line\n    const toothDepth = 0.75; // tip below pitch line\n    const beltThickness = 1.38; // total belt thickness (back to tooth tip)\n    const pitchY = toothDepth; // y of pitch line (tip is at y=0)\n    const backY = beltThickness; // y of belt back\n    const arcSteps = 16; // segments per tooth flank\n    const L = N * pitch;\n    // CCW outline: start top-left, down the left edge, rightward across the\n    // toothed bottom, up the right edge, then close along the top.\n    let pen = replicad.draw([0, backY]);\n    pen = pen.lineTo([0, pitchY]);\n    for (let i = 0; i < N; i++) {\n        const xc = (i + 0.5) * pitch;\n        const xLeft = xc - toothWidth / 2;\n        // Flat from previous tooth (or x=0) up to this tooth's left edge\n        pen = pen.lineTo([xLeft, pitchY]);\n        // Tooth dip — half-ellipse from (xLeft, pitchY) through (xc, 0) to\n        // (xRight, pitchY). Parametrising by θ ∈ [0,π] keeps x monotonic so the\n        // outline never self-intersects:\n        //   x(θ) = xc − (w/2)·cos θ\n        //   y(θ) = pitchY − depth·sin θ\n        for (let s = 1; s <= arcSteps; s++) {\n            const theta = Math.PI * (s / arcSteps);\n            const x = xc - (toothWidth / 2) * Math.cos(theta);\n            const y = pitchY - toothDepth * Math.sin(theta);\n            pen = pen.lineTo([x, y]);\n        }\n    }\n    // Trailing flat to the right edge, then up and close\n    pen = pen.lineTo([L, pitchY]);\n    pen = pen.lineTo([L, backY]);\n    const crossSection = pen.close();\n    return crossSection.sketchOnPlane().extrude(width);\n}\n"
         },
         {
           "atomType": "Input",
           "x": 0.025384615384615384,
           "y": 0.15384615384615385,
-          "uniqueID": "id-797",
-          "name": "Pitch"
+          "uniqueID": "id-1146",
+          "name": "Number_of_Teeth"
         },
         {
           "atomType": "Input",
           "x": 0.025384615384615384,
           "y": 0.24615384615384617,
-          "uniqueID": "id-798",
-          "name": "Number_Of_Teeth"
-        },
-        {
-          "atomType": "Input",
-          "x": 0.025384615384615384,
-          "y": 0.3384615384615385,
-          "uniqueID": "id-799",
-          "name": "Ring_Width"
-        },
-        {
-          "atomType": "Input",
-          "x": 0.025384615384615384,
-          "y": 0.4307692307692308,
-          "uniqueID": "id-800",
+          "uniqueID": "id-1147",
           "name": "Thickness"
-        },
-        {
-          "atomType": "Input",
-          "x": 0.025384615384615384,
-          "y": 0.5230769230769231,
-          "uniqueID": "id-801",
-          "name": "Pressure_Angle"
         }
       ],
       "allConnectors": [
         {
           "ap2Name": "number or geometry",
-          "ap1ID": "id-796",
-          "ap2ID": "id-795"
+          "ap1ID": "id-1145",
+          "ap2ID": "id-1144"
         },
         {
-          "ap2Name": "pitch",
-          "ap1ID": "id-797",
-          "ap2ID": "id-796"
+          "ap2Name": "numberOfTeeth",
+          "ap1ID": "id-1146",
+          "ap2ID": "id-1145"
         },
         {
-          "ap2Name": "teeth",
-          "ap1ID": "id-798",
-          "ap2ID": "id-796"
-        },
-        {
-          "ap2Name": "ringWidth",
-          "ap1ID": "id-799",
-          "ap2ID": "id-796"
-        },
-        {
-          "ap2Name": "thickness",
-          "ap1ID": "id-800",
-          "ap2ID": "id-796"
-        },
-        {
-          "ap2Name": "pressureAngle",
-          "ap1ID": "id-801",
-          "ap2ID": "id-796"
+          "ap2Name": "width",
+          "ap1ID": "id-1147",
+          "ap2ID": "id-1145"
         }
       ],
       "parentRepo": {
         "privateRepo": false,
-        "repoName": "Ring_Gear",
-        "dateCreated": "2026-05-05T20:23:53Z",
-        "readMe": "https://raw.githubusercontent.com/BarbourSmith/Ring_Gear/master/README.md?sanitize=true",
+        "repoName": "2GT_Belt",
+        "dateCreated": "2026-05-05T20:35:06Z",
+        "readMe": "https://raw.githubusercontent.com/BarbourSmith/2GT_Belt/master/README.md?sanitize=true",
         "yyyy": 2026,
-        "topMoleculeID": "id-713",
+        "topMoleculeID": "id-743",
         "githubMoleculesUsed": [],
-        "html_url": "https://github.com/BarbourSmith/Ring_Gear",
+        "html_url": "https://github.com/BarbourSmith/2GT_Belt",
         "topics": [],
         "parentRepo": null,
         "forks": 0,
         "dateModified": "739741",
         "ranking": 0,
-        "searchField": "ring_gear barboursmith generates a ring gear with teeth on the inside ",
+        "searchField": "2gt_belt barboursmith generates a length of 2gt belt using a code atom ",
         "owner": "BarbourSmith",
-        "description": "Generates a ring gear with teeth on the inside",
-        "contentURL": "https://raw.githubusercontent.com/BarbourSmith/Ring_Gear/master/project.abundance?sanitize=true",
-        "svgURL": "https://raw.githubusercontent.com/BarbourSmith/Ring_Gear/master/project.svg?sanitize=true",
+        "description": "Generates a length of 2GT belt using a code atom",
+        "contentURL": "https://raw.githubusercontent.com/BarbourSmith/2GT_Belt/master/project.abundance?sanitize=true",
+        "svgURL": "https://raw.githubusercontent.com/BarbourSmith/2GT_Belt/master/project.svg?sanitize=true",
         "isLocal": false
       },
-      "unitsKey": "Unitless",
+      "unitsKey": "MM",
       "fileTypeVersion": 1,
-      "lastReloadedFromGithubAt": 1778014446285
+      "lastReloadedFromGithubAt": 1778088835059
     },
     {
       "atomType": "Molecule",
@@ -356,7 +295,7 @@
             {
               "name": "Shape 1",
               "ioValue": {
-                "geometry": "8b84c3e7-138-3.14-4-6.4-null-0",
+                "geometry": "eca0031a-138-3.14-4-6.4-14.5-0",
                 "color": "#ffffff",
                 "tags": [],
                 "bom": [],
@@ -627,18 +566,30 @@
     },
     {
       "atomType": "GitHubMolecule",
-      "x": 0.2599206349206349,
-      "y": 0.8440111420612814,
-      "uniqueID": "id-1148",
-      "name": "2GT_Belt",
+      "x": 0.15873015873015872,
+      "y": 0.41782729805013924,
+      "uniqueID": "id-1274",
+      "name": "Ring_Gear",
       "ioValues": [
         {
-          "name": "Number_of_Teeth",
-          "ioValue": 10
+          "name": "Pitch",
+          "ioValue": 3.14
+        },
+        {
+          "name": "Number_Of_Teeth",
+          "ioValue": 138
+        },
+        {
+          "name": "Ring_Width",
+          "ioValue": 4
         },
         {
           "name": "Thickness",
-          "ioValue": 10
+          "ioValue": 6.4
+        },
+        {
+          "name": "Pressure_Angle",
+          "ioValue": 14.5
         }
       ],
       "topLevel": false,
@@ -647,7 +598,7 @@
           "atomType": "Output",
           "x": 0.98,
           "y": 0.5,
-          "uniqueID": "id-1144",
+          "uniqueID": "id-1267",
           "ioValues": [
             {
               "name": "number or geometry",
@@ -656,80 +607,128 @@
           ]
         },
         {
-          "atomType": "Code",
-          "x": 0.39153439153439157,
-          "y": 0.5793871866295265,
-          "uniqueID": "id-1145",
-          "ioValues": [
-            {
-              "name": "numberOfTeeth",
-              "ioValue": 10
-            },
-            {
-              "name": "width",
-              "ioValue": 10
-            }
-          ],
-          "interpreterVersion": 1,
-          "code": "/**\n * Straight length of 2GT (GT2) timing belt.\n * 2mm tooth pitch, ~0.75mm tooth depth, 1.38mm total belt thickness.\n * Belt extends along +X starting at the origin; teeth point toward -Y.\n * Width parameter controls the extrusion (belt face width).\n */\nfunction run(numberOfTeeth: number = 20, width: number = 6) {\n  const N = Math.max(1, Math.round(numberOfTeeth));\n  const pitch = 2.0;    // GT2 tooth pitch\n  const toothWidth = 1.15;   // chord width at pitch line\n  const toothDepth = 0.75;   // tip below pitch line\n  const beltThickness = 1.38;   // total belt thickness (back to tooth tip)\n  const pitchY = toothDepth;     // y of pitch line (tip is at y=0)\n  const backY = beltThickness;  // y of belt back\n  const arcSteps = 16;           // segments per tooth flank\n  const L = N * pitch;\n\n  // CCW outline: start top-left, down the left edge, rightward across the\n  // toothed bottom, up the right edge, then close along the top.\n  let pen = replicad.draw([0, backY]);\n  pen = pen.lineTo([0, pitchY]);\n\n  for (let i = 0; i < N; i++) {\n    const xc = (i + 0.5) * pitch;\n    const xLeft = xc - toothWidth / 2;\n\n    // Flat from previous tooth (or x=0) up to this tooth's left edge\n    pen = pen.lineTo([xLeft, pitchY]);\n\n    // Tooth dip — half-ellipse from (xLeft, pitchY) through (xc, 0) to\n    // (xRight, pitchY). Parametrising by θ ∈ [0,π] keeps x monotonic so the\n    // outline never self-intersects:\n    //   x(θ) = xc − (w/2)·cos θ\n    //   y(θ) = pitchY − depth·sin θ\n    for (let s = 1; s <= arcSteps; s++) {\n      const theta = Math.PI * (s / arcSteps);\n      const x = xc - (toothWidth / 2) * Math.cos(theta);\n      const y = pitchY - toothDepth * Math.sin(theta);\n      pen = pen.lineTo([x, y]);\n    }\n  }\n\n  // Trailing flat to the right edge, then up and close\n  pen = pen.lineTo([L, pitchY]);\n  pen = pen.lineTo([L, backY]);\n  const crossSection = pen.close();\n\n  return crossSection.sketchOnPlane().extrude(width);\n}",
-          "compiledCode": "\"use strict\";\n/**\n * Straight length of 2GT (GT2) timing belt.\n * 2mm tooth pitch, ~0.75mm tooth depth, 1.38mm total belt thickness.\n * Belt extends along +X starting at the origin; teeth point toward -Y.\n * Width parameter controls the extrusion (belt face width).\n */\nfunction run(numberOfTeeth = 20, width = 6) {\n    const N = Math.max(1, Math.round(numberOfTeeth));\n    const pitch = 2.0; // GT2 tooth pitch\n    const toothWidth = 1.15; // chord width at pitch line\n    const toothDepth = 0.75; // tip below pitch line\n    const beltThickness = 1.38; // total belt thickness (back to tooth tip)\n    const pitchY = toothDepth; // y of pitch line (tip is at y=0)\n    const backY = beltThickness; // y of belt back\n    const arcSteps = 16; // segments per tooth flank\n    const L = N * pitch;\n    // CCW outline: start top-left, down the left edge, rightward across the\n    // toothed bottom, up the right edge, then close along the top.\n    let pen = replicad.draw([0, backY]);\n    pen = pen.lineTo([0, pitchY]);\n    for (let i = 0; i < N; i++) {\n        const xc = (i + 0.5) * pitch;\n        const xLeft = xc - toothWidth / 2;\n        // Flat from previous tooth (or x=0) up to this tooth's left edge\n        pen = pen.lineTo([xLeft, pitchY]);\n        // Tooth dip — half-ellipse from (xLeft, pitchY) through (xc, 0) to\n        // (xRight, pitchY). Parametrising by θ ∈ [0,π] keeps x monotonic so the\n        // outline never self-intersects:\n        //   x(θ) = xc − (w/2)·cos θ\n        //   y(θ) = pitchY − depth·sin θ\n        for (let s = 1; s <= arcSteps; s++) {\n            const theta = Math.PI * (s / arcSteps);\n            const x = xc - (toothWidth / 2) * Math.cos(theta);\n            const y = pitchY - toothDepth * Math.sin(theta);\n            pen = pen.lineTo([x, y]);\n        }\n    }\n    // Trailing flat to the right edge, then up and close\n    pen = pen.lineTo([L, pitchY]);\n    pen = pen.lineTo([L, backY]);\n    const crossSection = pen.close();\n    return crossSection.sketchOnPlane().extrude(width);\n}\n"
-        },
-        {
           "atomType": "Input",
           "x": 0.025384615384615384,
           "y": 0.15384615384615385,
-          "uniqueID": "id-1146",
-          "name": "Number_of_Teeth"
+          "uniqueID": "id-1268",
+          "name": "Pitch"
         },
         {
           "atomType": "Input",
           "x": 0.025384615384615384,
           "y": 0.24615384615384617,
-          "uniqueID": "id-1147",
+          "uniqueID": "id-1269",
+          "name": "Number_Of_Teeth"
+        },
+        {
+          "atomType": "Input",
+          "x": 0.025384615384615384,
+          "y": 0.3384615384615385,
+          "uniqueID": "id-1270",
+          "name": "Ring_Width"
+        },
+        {
+          "atomType": "Input",
+          "x": 0.025384615384615384,
+          "y": 0.4307692307692308,
+          "uniqueID": "id-1271",
           "name": "Thickness"
+        },
+        {
+          "atomType": "Input",
+          "x": 0.025384615384615384,
+          "y": 0.5230769230769231,
+          "uniqueID": "id-1272",
+          "name": "Pressure_Angle"
+        },
+        {
+          "atomType": "Code",
+          "x": 0.5112433862433863,
+          "y": 0.34818941504178275,
+          "uniqueID": "id-1273",
+          "ioValues": [
+            {
+              "name": "teeth",
+              "ioValue": 138
+            },
+            {
+              "name": "pitch",
+              "ioValue": 3.14
+            },
+            {
+              "name": "ringWidth",
+              "ioValue": 4
+            },
+            {
+              "name": "thickness",
+              "ioValue": 6.4
+            },
+            {
+              "name": "pressureAngle",
+              "ioValue": 14.5
+            }
+          ],
+          "interpreterVersion": 1,
+          "code": "/**\n * Internal (ring) gear with curved (spline) flanks. Each flank is split into\n * FLANK_SEGMENTS sub-splines with the exact analytic tangent fed to replicad\n * as a direction VECTOR at every junction (numbers would be interpreted as\n * degrees by replicad — vectors avoid that conversion).\n *\n * Same unified involute formulas as the external gear — the only difference\n * for internal teeth is that `orient` flips sign, so the involute curves\n * the opposite way (tooth gets WIDER outward toward the root).\n */\nfunction run(\n  teeth: number = 40,\n  pitch: number = 5,\n  ringWidth: number = 6,\n  thickness: number = 5,\n  pressureAngle: number = 20,\n) {\n  const N = Math.max(8, Math.round(teeth));\n  const m = pitch / Math.PI;\n  const alpha = (pressureAngle * Math.PI) / 180;\n  const pitchR = (N * pitch) / (2 * Math.PI);\n  const addRInt = pitchR - m;            // tip (inward)\n  const rootRInt = pitchR + 1.25 * m;     // root (outward)\n  const baseR = pitchR * Math.cos(alpha);\n  const outerR = rootRInt + ringWidth;\n\n  const inv = (a: number) => Math.tan(a) - a;\n  const invAtPitch = inv(alpha);\n  const halfToothPitch = Math.PI / (2 * N);\n  const toothAngle = (2 * Math.PI) / N;\n\n  const tRoot = Math.acos(Math.min(1, baseR / rootRInt));\n  const tipBelowBase = addRInt < baseR;\n  const tAdd = tipBelowBase ? 0 : Math.acos(Math.min(1, baseR / addRInt));\n\n  const FLANK_SEGMENTS = 3;     // sub-splines per flank — bump to 4–5 for tiny tooth counts\n\n  const P = (r: number, a: number): [number, number] => [r * Math.cos(a), r * Math.sin(a)];\n  // For internal teeth: left-flank orient = −1, right-flank orient = +1\n  // (opposite of external gear, where left = +1, right = −1).\n  const involutePt = (t: number, originA: number, orient: number): [number, number] =>\n    P(baseR / Math.cos(t), originA + orient * inv(t));\n  const tanVec = (t: number, originA: number, orient: number, traversalSign: number): [number, number] => {\n    const a = originA + orient * (inv(t) + t);\n    return [traversalSign * Math.cos(a), traversalSign * Math.sin(a)];\n  };\n\n  const samples: number[] = [];\n  for (let s = 0; s <= FLANK_SEGMENTS; s++) {\n    samples.push(tAdd + (tRoot - tAdd) * (s / FLANK_SEGMENTS));\n  }\n  // samples[0] = tAdd (tip, smaller r);  samples[FLANK_SEGMENTS] = tRoot (root, larger r)\n\n  // Start the toothed-hole outline at tooth 0's left flank, at root radius.\n  const startA0 = -halfToothPitch + invAtPitch - inv(tRoot);\n  let pen = replicad.draw(P(rootRInt, startA0));\n\n  for (let i = 0; i < N; i++) {\n    const c = i * toothAngle;\n    const leftStart = c - halfToothPitch + invAtPitch;\n    const rightStart = c + halfToothPitch - invAtPitch;\n\n    // ── Left flank: root → tip (t decreasing tRoot → tAdd) ──\n    for (let s = FLANK_SEGMENTS - 1; s >= 0; s--) {\n      const tA = samples[s + 1], tB = samples[s];\n      pen = pen.smoothSplineTo(involutePt(tB, leftStart, -1), {\n        startTangent: tanVec(tA, leftStart, -1, -1),\n        endTangent: tanVec(tB, leftStart, -1, -1),\n      });\n    }\n\n    // ── Tip: chord across (with radial bridges if tip dips below base circle) ──\n    if (tipBelowBase) {\n      pen = pen.lineTo(P(addRInt, leftStart));\n      pen = pen.lineTo(P(addRInt, rightStart));\n    } else {\n      pen = pen.lineTo(involutePt(tAdd, rightStart, +1));\n    }\n\n    // ── Right flank: tip → root (t increasing tAdd → tRoot) ──\n    for (let s = 1; s <= FLANK_SEGMENTS; s++) {\n      const tA = samples[s - 1], tB = samples[s];\n      pen = pen.smoothSplineTo(involutePt(tB, rightStart, +1), {\n        startTangent: tanVec(tA, rightStart, +1, +1),\n        endTangent: tanVec(tB, rightStart, +1, +1),\n      });\n    }\n\n    // ── Gap arc on root circle to next tooth (close() handles the last) ──\n    if (i < N - 1) {\n      const arcStartA = rightStart + inv(tRoot);\n      const nextLeft = (i + 1) * toothAngle - halfToothPitch + invAtPitch;\n      const arcEndA = nextLeft - inv(tRoot);\n      const arcMidA = (arcStartA + arcEndA) / 2;\n      pen = pen.threePointsArcTo(P(rootRInt, arcEndA), P(rootRInt, arcMidA));\n    }\n  }\n\n  const innerHole = pen.close();\n  const outerDisk = replicad.drawCircle(outerR);\n  const ring2D = outerDisk.cut(innerHole);\n  return ring2D.sketchOnPlane().extrude(thickness);\n}",
+          "compiledCode": "\"use strict\";\n/**\n * Internal (ring) gear with curved (spline) flanks. Each flank is split into\n * FLANK_SEGMENTS sub-splines with the exact analytic tangent fed to replicad\n * as a direction VECTOR at every junction (numbers would be interpreted as\n * degrees by replicad — vectors avoid that conversion).\n *\n * Same unified involute formulas as the external gear — the only difference\n * for internal teeth is that `orient` flips sign, so the involute curves\n * the opposite way (tooth gets WIDER outward toward the root).\n */\nfunction run(teeth = 40, pitch = 5, ringWidth = 6, thickness = 5, pressureAngle = 20) {\n    const N = Math.max(8, Math.round(teeth));\n    const m = pitch / Math.PI;\n    const alpha = (pressureAngle * Math.PI) / 180;\n    const pitchR = (N * pitch) / (2 * Math.PI);\n    const addRInt = pitchR - m; // tip (inward)\n    const rootRInt = pitchR + 1.25 * m; // root (outward)\n    const baseR = pitchR * Math.cos(alpha);\n    const outerR = rootRInt + ringWidth;\n    const inv = (a) => Math.tan(a) - a;\n    const invAtPitch = inv(alpha);\n    const halfToothPitch = Math.PI / (2 * N);\n    const toothAngle = (2 * Math.PI) / N;\n    const tRoot = Math.acos(Math.min(1, baseR / rootRInt));\n    const tipBelowBase = addRInt < baseR;\n    const tAdd = tipBelowBase ? 0 : Math.acos(Math.min(1, baseR / addRInt));\n    const FLANK_SEGMENTS = 3; // sub-splines per flank — bump to 4–5 for tiny tooth counts\n    const P = (r, a) => [r * Math.cos(a), r * Math.sin(a)];\n    // For internal teeth: left-flank orient = −1, right-flank orient = +1\n    // (opposite of external gear, where left = +1, right = −1).\n    const involutePt = (t, originA, orient) => P(baseR / Math.cos(t), originA + orient * inv(t));\n    const tanVec = (t, originA, orient, traversalSign) => {\n        const a = originA + orient * (inv(t) + t);\n        return [traversalSign * Math.cos(a), traversalSign * Math.sin(a)];\n    };\n    const samples = [];\n    for (let s = 0; s <= FLANK_SEGMENTS; s++) {\n        samples.push(tAdd + (tRoot - tAdd) * (s / FLANK_SEGMENTS));\n    }\n    // samples[0] = tAdd (tip, smaller r);  samples[FLANK_SEGMENTS] = tRoot (root, larger r)\n    // Start the toothed-hole outline at tooth 0's left flank, at root radius.\n    const startA0 = -halfToothPitch + invAtPitch - inv(tRoot);\n    let pen = replicad.draw(P(rootRInt, startA0));\n    for (let i = 0; i < N; i++) {\n        const c = i * toothAngle;\n        const leftStart = c - halfToothPitch + invAtPitch;\n        const rightStart = c + halfToothPitch - invAtPitch;\n        // ── Left flank: root → tip (t decreasing tRoot → tAdd) ──\n        for (let s = FLANK_SEGMENTS - 1; s >= 0; s--) {\n            const tA = samples[s + 1], tB = samples[s];\n            pen = pen.smoothSplineTo(involutePt(tB, leftStart, -1), {\n                startTangent: tanVec(tA, leftStart, -1, -1),\n                endTangent: tanVec(tB, leftStart, -1, -1),\n            });\n        }\n        // ── Tip: chord across (with radial bridges if tip dips below base circle) ──\n        if (tipBelowBase) {\n            pen = pen.lineTo(P(addRInt, leftStart));\n            pen = pen.lineTo(P(addRInt, rightStart));\n        }\n        else {\n            pen = pen.lineTo(involutePt(tAdd, rightStart, +1));\n        }\n        // ── Right flank: tip → root (t increasing tAdd → tRoot) ──\n        for (let s = 1; s <= FLANK_SEGMENTS; s++) {\n            const tA = samples[s - 1], tB = samples[s];\n            pen = pen.smoothSplineTo(involutePt(tB, rightStart, +1), {\n                startTangent: tanVec(tA, rightStart, +1, +1),\n                endTangent: tanVec(tB, rightStart, +1, +1),\n            });\n        }\n        // ── Gap arc on root circle to next tooth (close() handles the last) ──\n        if (i < N - 1) {\n            const arcStartA = rightStart + inv(tRoot);\n            const nextLeft = (i + 1) * toothAngle - halfToothPitch + invAtPitch;\n            const arcEndA = nextLeft - inv(tRoot);\n            const arcMidA = (arcStartA + arcEndA) / 2;\n            pen = pen.threePointsArcTo(P(rootRInt, arcEndA), P(rootRInt, arcMidA));\n        }\n    }\n    const innerHole = pen.close();\n    const outerDisk = replicad.drawCircle(outerR);\n    const ring2D = outerDisk.cut(innerHole);\n    return ring2D.sketchOnPlane().extrude(thickness);\n}\n"
         }
       ],
       "allConnectors": [
         {
+          "ap2Name": "pitch",
+          "ap1ID": "id-1268",
+          "ap2ID": "id-1273"
+        },
+        {
+          "ap2Name": "teeth",
+          "ap1ID": "id-1269",
+          "ap2ID": "id-1273"
+        },
+        {
+          "ap2Name": "ringWidth",
+          "ap1ID": "id-1270",
+          "ap2ID": "id-1273"
+        },
+        {
+          "ap2Name": "thickness",
+          "ap1ID": "id-1271",
+          "ap2ID": "id-1273"
+        },
+        {
+          "ap2Name": "pressureAngle",
+          "ap1ID": "id-1272",
+          "ap2ID": "id-1273"
+        },
+        {
           "ap2Name": "number or geometry",
-          "ap1ID": "id-1145",
-          "ap2ID": "id-1144"
-        },
-        {
-          "ap2Name": "numberOfTeeth",
-          "ap1ID": "id-1146",
-          "ap2ID": "id-1145"
-        },
-        {
-          "ap2Name": "width",
-          "ap1ID": "id-1147",
-          "ap2ID": "id-1145"
+          "ap1ID": "id-1273",
+          "ap2ID": "id-1267"
         }
       ],
       "parentRepo": {
         "privateRepo": false,
-        "repoName": "2GT_Belt",
-        "dateCreated": "2026-05-05T20:35:06Z",
-        "readMe": "https://raw.githubusercontent.com/BarbourSmith/2GT_Belt/master/README.md?sanitize=true",
+        "repoName": "Ring_Gear",
+        "dateCreated": "2026-05-05T20:23:53Z",
+        "readMe": "https://raw.githubusercontent.com/BarbourSmith/Ring_Gear/master/README.md?sanitize=true",
         "yyyy": 2026,
-        "topMoleculeID": "id-743",
+        "topMoleculeID": "id-713",
         "githubMoleculesUsed": [],
-        "html_url": "https://github.com/BarbourSmith/2GT_Belt",
+        "html_url": "https://github.com/BarbourSmith/Ring_Gear",
         "topics": [],
         "parentRepo": null,
         "forks": 0,
         "dateModified": "739741",
         "ranking": 0,
-        "searchField": "2gt_belt barboursmith generates a length of 2gt belt using a code atom ",
+        "searchField": "ring_gear barboursmith generates a ring gear with teeth on the inside ",
         "owner": "BarbourSmith",
-        "description": "Generates a length of 2GT belt using a code atom",
-        "contentURL": "https://raw.githubusercontent.com/BarbourSmith/2GT_Belt/master/project.abundance?sanitize=true",
-        "svgURL": "https://raw.githubusercontent.com/BarbourSmith/2GT_Belt/master/project.svg?sanitize=true",
+        "description": "Generates a ring gear with teeth on the inside",
+        "contentURL": "https://raw.githubusercontent.com/BarbourSmith/Ring_Gear/master/project.abundance?sanitize=true",
+        "svgURL": "https://raw.githubusercontent.com/BarbourSmith/Ring_Gear/master/project.svg?sanitize=true",
         "isLocal": false
       },
-      "unitsKey": "MM",
+      "unitsKey": "Unitless",
       "fileTypeVersion": 1,
-      "lastReloadedFromGithubAt": 1778088835059
+      "lastReloadedFromGithubAt": 1778091019101
     }
   ],
   "allConnectors": [
@@ -744,9 +743,9 @@
       "ap2ID": "id-780"
     },
     {
-      "ap2Name": "input",
-      "ap1ID": "id-802",
-      "ap2ID": "id-988"
+      "ap2Name": "geometry",
+      "ap1ID": "id-1148",
+      "ap2ID": "id-879"
     },
     {
       "ap2Name": "retain",
@@ -754,9 +753,9 @@
       "ap2ID": "id-885"
     },
     {
-      "ap2Name": "geometry",
-      "ap1ID": "id-1148",
-      "ap2ID": "id-879"
+      "ap2Name": "input",
+      "ap1ID": "id-1274",
+      "ap2ID": "id-988"
     }
   ],
   "unitsKey": "MM",
