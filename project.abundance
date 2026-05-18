@@ -20,8 +20,8 @@
     },
     {
       "atomType": "Move",
-      "x": 0.6865079365079365,
-      "y": 0.4317548746518106,
+      "x": 0.6878306878306879,
+      "y": 0.415041782729805,
       "uniqueID": "id-879",
       "ioValues": [
         {
@@ -30,11 +30,12 @@
         },
         {
           "name": "xDist",
-          "ioValue": 7
+          "ioValue": 6
         },
         {
           "name": "yDist",
-          "ioValue": 73.75
+          "ioValue": 74.25,
+          "currentEquation": "74.25"
         },
         {
           "name": "zDist",
@@ -60,8 +61,8 @@
     },
     {
       "atomType": "Rotate",
-      "x": 0.5496031746031745,
-      "y": 0.5988857938718662,
+      "x": 0.5529100529100529,
+      "y": 0.596100278551532,
       "uniqueID": "id-1364",
       "ioValues": [
         {
@@ -875,6 +876,36 @@
         }
       ],
       "fileTypeVersion": 1
+    },
+    {
+      "atomType": "Export",
+      "x": 0.8538359788359788,
+      "y": 0.7437325905292479,
+      "uniqueID": "id-1593",
+      "ioValues": [
+        {
+          "name": "geometry",
+          "ioValue": "__GEOMETRY_INPUT__"
+        },
+        {
+          "name": "File Type",
+          "ioValue": "STL",
+          "currentEquation": "STL"
+        },
+        {
+          "name": "Resolution (dpi)",
+          "ioValue": 96
+        },
+        {
+          "name": "Part Name",
+          "ioValue": "Spool",
+          "currentEquation": "Spool"
+        }
+      ],
+      "type": null,
+      "resolution": 96,
+      "importIndex": 0,
+      "partName": "Spool"
     }
   ],
   "allConnectors": [
@@ -887,6 +918,11 @@
       "ap2Name": "number or geometry",
       "ap1ID": "id-885",
       "ap2ID": "id-780"
+    },
+    {
+      "ap2Name": "geometry",
+      "ap1ID": "id-885",
+      "ap2ID": "id-1593"
     },
     {
       "ap2Name": "geometry",
