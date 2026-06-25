@@ -44,8 +44,8 @@
     },
     {
       "atomType": "Difference",
-      "x": 0.8961640211640212,
-      "y": 0.3064066852367688,
+      "x": 0.7658730158730159,
+      "y": 0.24233983286908078,
       "uniqueID": "id-885",
       "ioValues": [
         {
@@ -196,6 +196,7 @@
                 1
               ]
             },
+            "metadata": {},
             "dimension": "3D"
           }
         }
@@ -231,6 +232,36 @@
       "resolution": 96,
       "importIndex": 0,
       "partName": "Spool"
+    },
+    {
+      "atomType": "Export",
+      "x": 0.7433862433862434,
+      "y": 0.6434540389972144,
+      "uniqueID": "id-1707",
+      "ioValues": [
+        {
+          "name": "geometry",
+          "ioValue": "__GEOMETRY_INPUT__"
+        },
+        {
+          "name": "File Type",
+          "ioValue": "STEP",
+          "currentEquation": "STEP"
+        },
+        {
+          "name": "Resolution (dpi)",
+          "ioValue": 96
+        },
+        {
+          "name": "Part Name",
+          "ioValue": "Spool_5",
+          "currentEquation": "Spool_5"
+        }
+      ],
+      "type": "STEP",
+      "resolution": 96,
+      "importIndex": 0,
+      "partName": "Spool_5"
     },
     {
       "atomType": "GitHubMolecule",
@@ -347,7 +378,8 @@
       "ioValues": [
         {
           "name": "Pitch",
-          "ioValue": 3.14
+          "ioValue": 3.366,
+          "currentEquation": "3.366"
         },
         {
           "name": "Number_Of_Teeth",
@@ -427,7 +459,7 @@
             },
             {
               "name": "pitch",
-              "ioValue": 3.14
+              "ioValue": 3.366
             },
             {
               "name": "ringWidth",
@@ -506,8 +538,8 @@
     },
     {
       "atomType": "Molecule",
-      "x": 0.48611111111111116,
-      "y": 0.20612813370473537,
+      "x": 0.4834656084656085,
+      "y": 0.22284122562674097,
       "uniqueID": "id-988",
       "name": "Add Thickness",
       "ioValues": [
@@ -635,7 +667,7 @@
             {
               "name": "Shape 1",
               "ioValue": {
-                "geometry": "a7433da0-0",
+                "geometry": "7dcf10b0-0",
                 "color": "#aad7f2",
                 "tags": [],
                 "bom": [],
@@ -656,6 +688,7 @@
                     1
                   ]
                 },
+                "metadata": {},
                 "dimension": "3D"
               }
             },
@@ -903,36 +936,6 @@
         }
       ],
       "fileTypeVersion": 1
-    },
-    {
-      "atomType": "Export",
-      "x": 0.7433862433862434,
-      "y": 0.6434540389972144,
-      "uniqueID": "id-1707",
-      "ioValues": [
-        {
-          "name": "geometry",
-          "ioValue": "__GEOMETRY_INPUT__"
-        },
-        {
-          "name": "File Type",
-          "ioValue": "STEP",
-          "currentEquation": "STEP"
-        },
-        {
-          "name": "Resolution (dpi)",
-          "ioValue": 96
-        },
-        {
-          "name": "Part Name",
-          "ioValue": "Spool_5",
-          "currentEquation": "Spool_5"
-        }
-      ],
-      "type": "STEP",
-      "resolution": 96,
-      "importIndex": 0,
-      "partName": "Spool_5"
     }
   ],
   "allConnectors": [
