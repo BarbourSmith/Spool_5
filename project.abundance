@@ -20,8 +20,8 @@
     },
     {
       "atomType": "Move",
-      "x": 0.6878306878306879,
-      "y": 0.415041782729805,
+      "x": 0.6183862433862434,
+      "y": 0.6239554317548747,
       "uniqueID": "id-879",
       "ioValues": [
         {
@@ -34,7 +34,8 @@
         },
         {
           "name": "yDist",
-          "ioValue": 74.25
+          "ioValue": 79.75,
+          "currentEquation": "79.75"
         },
         {
           "name": "zDist",
@@ -60,8 +61,8 @@
     },
     {
       "atomType": "Rotate",
-      "x": 0.5529100529100529,
-      "y": 0.596100278551532,
+      "x": 0.4973544973544974,
+      "y": 0.7270194986072424,
       "uniqueID": "id-1364",
       "ioValues": [
         {
@@ -205,38 +206,8 @@
     },
     {
       "atomType": "Export",
-      "x": 0.8538359788359788,
-      "y": 0.7437325905292479,
-      "uniqueID": "id-1593",
-      "ioValues": [
-        {
-          "name": "geometry",
-          "ioValue": "__GEOMETRY_INPUT__"
-        },
-        {
-          "name": "File Type",
-          "ioValue": "STL",
-          "currentEquation": "STL"
-        },
-        {
-          "name": "Resolution (dpi)",
-          "ioValue": 96
-        },
-        {
-          "name": "Part Name",
-          "ioValue": "Spool",
-          "currentEquation": "Spool"
-        }
-      ],
-      "type": null,
-      "resolution": 96,
-      "importIndex": 0,
-      "partName": "Spool"
-    },
-    {
-      "atomType": "Export",
-      "x": 0.7433862433862434,
-      "y": 0.6434540389972144,
+      "x": 0.8888888888888888,
+      "y": 0.27298050139275765,
       "uniqueID": "id-1707",
       "ioValues": [
         {
@@ -387,7 +358,7 @@
         },
         {
           "name": "Ring_Width",
-          "ioValue": 4
+          "ioValue": 5
         },
         {
           "name": "Thickness",
@@ -463,7 +434,7 @@
             },
             {
               "name": "ringWidth",
-              "ioValue": 4
+              "ioValue": 5
             },
             {
               "name": "thickness",
@@ -538,7 +509,7 @@
     },
     {
       "atomType": "Molecule",
-      "x": 0.4834656084656085,
+      "x": 0.47949735449735453,
       "y": 0.22284122562674097,
       "uniqueID": "id-988",
       "name": "Add Thickness",
@@ -636,8 +607,8 @@
         },
         {
           "atomType": "Intersection",
-          "x": 0.47685185185185186,
-          "y": 0.3342618384401114,
+          "x": 0.4338624338624339,
+          "y": 0.4233983286908078,
           "uniqueID": "id-1003",
           "ioValues": [
             {
@@ -660,14 +631,14 @@
         },
         {
           "atomType": "Fusion",
-          "x": 0.669973544973545,
-          "y": 0.2618384401114206,
+          "x": 0.7943121693121694,
+          "y": 0.2256267409470752,
           "uniqueID": "id-1045",
           "ioValues": [
             {
               "name": "Shape 1",
               "ioValue": {
-                "geometry": "7dcf10b0-0",
+                "geometry": "a47006e0-0",
                 "color": "#aad7f2",
                 "tags": [],
                 "bom": [],
@@ -693,9 +664,9 @@
               }
             },
             {
-              "name": "Shape 2",
+              "name": "Shape 3",
               "ioValue": {
-                "geometry": "move-intersect-move-extrude-rectangle-500-500-{\"origin\":[0,0,0],\"xDir\":[1,0,0],\"normal\":[0,0,1]}-10-250-0-0-extrude-cut-circle-74.5-circle-72.5-{\"origin\":[0,0,0],\"xDir\":[1,0,0],\"normal\":[0,0,1]}-6.4-0-1.5-0",
+                "geometry": "move-intersect-move-extrude-rectangle-500-500-{\"origin\":[0,0,0],\"xDir\":[1,0,0],\"normal\":[0,0,1]}-10-250-0-0-extrude-cut-circle-80-circle-78-{\"origin\":[0,0,0],\"xDir\":[1,0,0],\"normal\":[0,0,1]}-6.4-0-2-0",
                 "tags": [],
                 "color": "#aad7f2",
                 "plane": {
@@ -738,7 +709,8 @@
             },
             {
               "name": "yDist",
-              "ioValue": 1.5
+              "ioValue": 2,
+              "currentEquation": "2"
             },
             {
               "name": "zDist",
@@ -748,18 +720,19 @@
         },
         {
           "atomType": "GitHubMolecule",
-          "x": 0.04497354497354498,
+          "x": 0.04365079365079365,
           "y": 0.42618384401114207,
           "uniqueID": "id-992",
           "name": "Concentric_Circles",
           "ioValues": [
             {
               "name": "OD",
-              "ioValue": 149
+              "ioValue": 160
             },
             {
               "name": "ID",
-              "ioValue": 145
+              "ioValue": 156,
+              "currentEquation": "156"
             }
           ],
           "topLevel": false,
@@ -800,7 +773,7 @@
               "ioValues": [
                 {
                   "name": "diameter",
-                  "ioValue": 149
+                  "ioValue": 160
                 }
               ]
             },
@@ -812,7 +785,7 @@
               "ioValues": [
                 {
                   "name": "diameter",
-                  "ioValue": 145
+                  "ioValue": 156
                 }
               ]
             },
@@ -925,7 +898,7 @@
           "ap2ID": "id-990"
         },
         {
-          "ap2Name": "Shape 2",
+          "ap2Name": "Shape 3",
           "ap1ID": "id-1049",
           "ap2ID": "id-1045"
         },
@@ -936,6 +909,195 @@
         }
       ],
       "fileTypeVersion": 1
+    },
+    {
+      "atomType": "GitHubMolecule",
+      "x": 0.6527777777777778,
+      "y": 0.8440111420612814,
+      "uniqueID": "id-1837",
+      "name": "Concentric_Circles",
+      "ioValues": [
+        {
+          "name": "OD",
+          "ioValue": 145,
+          "currentEquation": "145"
+        },
+        {
+          "name": "ID",
+          "ioValue": 135,
+          "currentEquation": "135"
+        }
+      ],
+      "topLevel": false,
+      "allAtoms": [
+        {
+          "atomType": "Output",
+          "x": 0.98,
+          "y": 0.5,
+          "uniqueID": "id-1831",
+          "ioValues": [
+            {
+              "name": "number or geometry",
+              "ioValue": "__GEOMETRY_INPUT__"
+            }
+          ]
+        },
+        {
+          "atomType": "Input",
+          "x": 0.025384615384615384,
+          "y": 0.15384615384615385,
+          "uniqueID": "id-1832",
+          "name": "OD",
+          "type": "number"
+        },
+        {
+          "atomType": "Input",
+          "x": 0.025384615384615384,
+          "y": 0.24615384615384617,
+          "uniqueID": "id-1833",
+          "name": "ID",
+          "type": "number"
+        },
+        {
+          "atomType": "Circle",
+          "x": 0.460559796437659,
+          "y": 0.42567567567567566,
+          "uniqueID": "id-1834",
+          "ioValues": [
+            {
+              "name": "diameter",
+              "ioValue": 145
+            }
+          ]
+        },
+        {
+          "atomType": "Circle",
+          "x": 0.44529262086514,
+          "y": 0.7263513513513513,
+          "uniqueID": "id-1835",
+          "ioValues": [
+            {
+              "name": "diameter",
+              "ioValue": 135
+            }
+          ]
+        },
+        {
+          "atomType": "Difference",
+          "x": 0.6615776081424937,
+          "y": 0.5506756756756757,
+          "uniqueID": "id-1836",
+          "ioValues": [
+            {
+              "name": "retain",
+              "ioValue": "__GEOMETRY_INPUT__"
+            },
+            {
+              "name": "remove",
+              "ioValue": "__GEOMETRY_INPUT__"
+            }
+          ]
+        }
+      ],
+      "allConnectors": [
+        {
+          "ap2Name": "diameter",
+          "ap1ID": "id-1832",
+          "ap2ID": "id-1834"
+        },
+        {
+          "ap2Name": "diameter",
+          "ap1ID": "id-1833",
+          "ap2ID": "id-1835"
+        },
+        {
+          "ap2Name": "retain",
+          "ap1ID": "id-1834",
+          "ap2ID": "id-1836"
+        },
+        {
+          "ap2Name": "remove",
+          "ap1ID": "id-1835",
+          "ap2ID": "id-1836"
+        },
+        {
+          "ap2Name": "number or geometry",
+          "ap1ID": "id-1836",
+          "ap2ID": "id-1831"
+        }
+      ],
+      "parentRepo": {
+        "lastFoundGit": "2026-06-25T10:23:39.090Z",
+        "privateRepo": false,
+        "repoName": "Concentric_Circles",
+        "dateCreated": "2025-11-08T04:08:14Z",
+        "likes": 0,
+        "readMe": "https://raw.githubusercontent.com/BarbourSmith/Concentric_Circles/master/README.md?sanitize=true",
+        "yyyy": 2025,
+        "topMoleculeID": "id-1170",
+        "githubMoleculesUsed": [],
+        "html_url": "https://github.com/BarbourSmith/Concentric_Circles",
+        "topics": [],
+        "parentRepo": null,
+        "forks": 0,
+        "dateModified": "739563",
+        "ranking": 27.9,
+        "searchField": "concentric_circles barboursmith creates two concentric circles. the result is 2d ",
+        "owner": "BarbourSmith",
+        "description": "Creates two concentric circles. The result is 2D",
+        "contentURL": "https://raw.githubusercontent.com/BarbourSmith/Concentric_Circles/master/project.abundance?sanitize=true",
+        "svgURL": "https://raw.githubusercontent.com/BarbourSmith/Concentric_Circles/master/project.svg?sanitize=true",
+        "isLocal": false
+      },
+      "unitsKey": "Unitless",
+      "fileTypeVersion": 1,
+      "lastReloadedFromGithubAt": 1782410594577
+    },
+    {
+      "atomType": "Extrude",
+      "x": 0.7976190476190476,
+      "y": 0.7576601671309192,
+      "uniqueID": "id-1853",
+      "ioValues": [
+        {
+          "name": "geometry",
+          "ioValue": "__GEOMETRY_INPUT__"
+        },
+        {
+          "name": "height",
+          "ioValue": 7
+        }
+      ]
+    },
+    {
+      "atomType": "Export",
+      "x": 0.8677248677248678,
+      "y": 0.7827298050139275,
+      "uniqueID": "id-1860",
+      "ioValues": [
+        {
+          "name": "geometry",
+          "ioValue": "__GEOMETRY_INPUT__"
+        },
+        {
+          "name": "File Type",
+          "ioValue": "STEP",
+          "currentEquation": "STEP"
+        },
+        {
+          "name": "Resolution (dpi)",
+          "ioValue": 96
+        },
+        {
+          "name": "Part Name",
+          "ioValue": "Inner Ring",
+          "currentEquation": "Inner Ring"
+        }
+      ],
+      "type": null,
+      "resolution": 96,
+      "importIndex": 0,
+      "partName": "Inner Ring"
     }
   ],
   "allConnectors": [
@@ -945,19 +1107,14 @@
       "ap2ID": "id-885"
     },
     {
-      "ap2Name": "number or geometry",
-      "ap1ID": "id-885",
-      "ap2ID": "id-780"
-    },
-    {
-      "ap2Name": "geometry",
-      "ap1ID": "id-885",
-      "ap2ID": "id-1593"
-    },
-    {
       "ap2Name": "geometry",
       "ap1ID": "id-885",
       "ap2ID": "id-1707"
+    },
+    {
+      "ap2Name": "number or geometry",
+      "ap1ID": "id-885",
+      "ap2ID": "id-780"
     },
     {
       "ap2Name": "geometry",
@@ -998,6 +1155,16 @@
       "ap2Name": "retain",
       "ap1ID": "id-988",
       "ap2ID": "id-885"
+    },
+    {
+      "ap2Name": "geometry",
+      "ap1ID": "id-1837",
+      "ap2ID": "id-1853"
+    },
+    {
+      "ap2Name": "geometry",
+      "ap1ID": "id-1853",
+      "ap2ID": "id-1860"
     }
   ],
   "unitsKey": "MM",
