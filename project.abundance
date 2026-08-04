@@ -387,15 +387,14 @@
     },
     {
       "atomType": "GitHubMolecule",
-      "x": 0.16534391534391535,
-      "y": 0.12813370473537605,
+      "x": 0.1593915343915344,
+      "y": 0.1309192200557103,
       "uniqueID": "id-1274",
       "name": "Ring_Gear",
       "ioValues": [
         {
           "name": "Pitch",
-          "ioValue": 3.366,
-          "currentEquation": "3.366"
+          "ioValue": 3.366
         },
         {
           "name": "Number_Of_Teeth",
@@ -694,118 +693,6 @@
       "lastReloadedFromGithubAt": 1782410594577
     },
     {
-      "atomType": "GitHubMolecule",
-      "x": 0.7883597883597884,
-      "y": 0.520891364902507,
-      "uniqueID": "id-2005",
-      "name": "util.Offset",
-      "ioValues": [
-        {
-          "name": "Shape",
-          "ioValue": "__GEOMETRY_INPUT__"
-        },
-        {
-          "name": "Offset",
-          "ioValue": -0.1
-        }
-      ],
-      "topLevel": false,
-      "allAtoms": [
-        {
-          "atomType": "Output",
-          "x": 0.98,
-          "y": 0.5,
-          "uniqueID": "id-2001",
-          "ioValues": [
-            {
-              "name": "number or geometry",
-              "ioValue": "__GEOMETRY_INPUT__"
-            }
-          ]
-        },
-        {
-          "atomType": "Code",
-          "x": 0.36328124999999994,
-          "y": 0.5657142857142857,
-          "uniqueID": "id-2002",
-          "ioValues": [
-            {
-              "name": "shape",
-              "ioValue": "__GEOMETRY_INPUT__"
-            },
-            {
-              "name": "offset",
-              "ioValue": -0.1
-            }
-          ],
-          "interpreterVersion": 1,
-          "code": "function run(shape: Assembly, offset: number = 1) {\n  return shape.onLeafs((leaf) => {\n    console.log(leaf)\n    if (leaf.geometry instanceof replicad.Drawing) {\n      throw new Error(\"Drawings not supported for this type of offset\")\n    }\n\n    const oc = replicad.getOC();\n    const progress = new oc.Message_ProgressRange_1();\n    const offsetBuilder = new oc.BRepOffsetAPI_MakeOffsetShape();\n    offsetBuilder.PerformByJoin(\n      leaf.geometry.wrapped,\n      offset,\n      0.000001,\n      oc.BRepOffset_Mode.BRepOffset_Skin,\n      true, // for interior offsets this seems to work better when set to true.\n      false,\n      oc.GeomAbs_JoinType.GeomAbs_Arc,\n      false,\n      progress\n    );\n\n    //      offsetBuilder.PerformBySimple(leaf.geometry.wrapped, offset)\n    leaf.geometry = replicad.cast(replicad.downcast(offsetBuilder.Shape()))\n    if (leaf.geometry instanceof replicad.Shell) {\n      console.log(\"got shell, trying to make solid\")\n      leaf.geometry = replicad.makeSolid([leaf.geometry])\n    }\n\n    offsetBuilder.delete();\n    progress.delete();\n\n    return leaf;\n    //leaf.geometry = replicad.makeOffset(leaf.geometry, offset);\n  })\n}",
-          "compiledCode": "\"use strict\";\nfunction run(shape, offset = 1) {\n    return shape.onLeafs((leaf) => {\n        console.log(leaf);\n        if (leaf.geometry instanceof replicad.Drawing) {\n            throw new Error(\"Drawings not supported for this type of offset\");\n        }\n        const oc = replicad.getOC();\n        const progress = new oc.Message_ProgressRange_1();\n        const offsetBuilder = new oc.BRepOffsetAPI_MakeOffsetShape();\n        offsetBuilder.PerformByJoin(leaf.geometry.wrapped, offset, 0.000001, oc.BRepOffset_Mode.BRepOffset_Skin, true, // for interior offsets this seems to work better when set to true.\n        false, oc.GeomAbs_JoinType.GeomAbs_Arc, false, progress);\n        //      offsetBuilder.PerformBySimple(leaf.geometry.wrapped, offset)\n        leaf.geometry = replicad.cast(replicad.downcast(offsetBuilder.Shape()));\n        if (leaf.geometry instanceof replicad.Shell) {\n            console.log(\"got shell, trying to make solid\");\n            leaf.geometry = replicad.makeSolid([leaf.geometry]);\n        }\n        offsetBuilder.delete();\n        progress.delete();\n        return leaf;\n        //leaf.geometry = replicad.makeOffset(leaf.geometry, offset);\n    });\n}\n"
-        },
-        {
-          "atomType": "Input",
-          "x": 0.025384615384615384,
-          "y": 0.15384615384615385,
-          "uniqueID": "id-2003",
-          "name": "Shape",
-          "type": "geometry"
-        },
-        {
-          "atomType": "Input",
-          "x": 0.025384615384615384,
-          "y": 0.24615384615384617,
-          "uniqueID": "id-2004",
-          "name": "Offset"
-        }
-      ],
-      "allConnectors": [
-        {
-          "ap2Name": "number or geometry",
-          "ap1ID": "id-2002",
-          "ap2ID": "id-2001"
-        },
-        {
-          "ap2Name": "shape",
-          "ap1ID": "id-2003",
-          "ap2ID": "id-2002"
-        },
-        {
-          "ap2Name": "offset",
-          "ap1ID": "id-2004",
-          "ap2ID": "id-2002"
-        }
-      ],
-      "parentRepo": {
-        "lastFoundGit": "2026-08-04T18:23:38.983Z",
-        "privateRepo": false,
-        "repoName": "util.Offset",
-        "dateCreated": "2026-07-17T21:53:37Z",
-        "likes": 0,
-        "readMe": "https://raw.githubusercontent.com/tristan-huber/util.Offset/master/README.md?sanitize=true",
-        "yyyy": 2026,
-        "topMoleculeID": "id-66747",
-        "githubMoleculesUsed": [],
-        "html_url": "https://github.com/tristan-huber/util.Offset",
-        "topics": [
-          "abundance-tool"
-        ],
-        "pullRequests": [],
-        "parentRepo": null,
-        "forks": 0,
-        "dateModified": "739820",
-        "ranking": 2.4,
-        "searchField": "util.offset tristan-huber offset an assembly of solids by some constant distance. positive value corresponds to a larger result, negative offsets correspond to a smaller result. abundance-tool",
-        "owner": "tristan-huber",
-        "description": "Offset an assembly of solids by some constant distance. Positive value corresponds to a larger result, negative offsets correspond to a smaller result.",
-        "contentURL": "https://raw.githubusercontent.com/tristan-huber/util.Offset/master/project.abundance?sanitize=true",
-        "svgURL": "https://raw.githubusercontent.com/tristan-huber/util.Offset/master/project.svg?sanitize=true",
-        "isLocal": false
-      },
-      "unitsKey": "Unitless",
-      "fileTypeVersion": 1,
-      "lastReloadedFromGithubAt": 1785881793200
-    },
-    {
       "atomType": "Molecule",
       "x": 0.47949735449735453,
       "y": 0.22284122562674097,
@@ -936,7 +823,7 @@
             {
               "name": "Shape 1",
               "ioValue": {
-                "geometry": "f6e9f850-0",
+                "geometry": "c12cd170-0",
                 "color": "#aad7f2",
                 "tags": [],
                 "bom": [],
@@ -1208,9 +1095,9 @@
     },
     {
       "atomType": "GitHubMolecule",
-      "x": 0.1607142857142857,
-      "y": 0.4317548746518106,
-      "uniqueID": "id-2165",
+      "x": 0.1593915343915344,
+      "y": 0.4345403899721449,
+      "uniqueID": "id-2344",
       "name": "Ring_Gear_With_Slop",
       "ioValues": [
         {
@@ -1219,28 +1106,23 @@
         },
         {
           "name": "Number_Of_Teeth",
-          "ioValue": 138,
-          "currentEquation": "138"
+          "ioValue": 138
         },
         {
           "name": "Ring_Width",
-          "ioValue": 7.5,
-          "currentEquation": "7.5"
+          "ioValue": 7.5
         },
         {
           "name": "Thickness",
-          "ioValue": 6.4,
-          "currentEquation": "6.4"
+          "ioValue": 6.4
         },
         {
           "name": "Pressure_Angle",
-          "ioValue": 14.5,
-          "currentEquation": "14.5"
+          "ioValue": 14.5
         },
         {
           "name": "Clearence",
-          "ioValue": 0.5,
-          "currentEquation": "0.5"
+          "ioValue": 0.1
         }
       ],
       "topLevel": false,
@@ -1249,7 +1131,7 @@
           "atomType": "Output",
           "x": 0.98,
           "y": 0.5,
-          "uniqueID": "id-2157",
+          "uniqueID": "id-2336",
           "ioValues": [
             {
               "name": "number or geometry",
@@ -1258,10 +1140,52 @@
           ]
         },
         {
+          "atomType": "Input",
+          "x": 0.025384615384615384,
+          "y": 0.15384615384615385,
+          "uniqueID": "id-2337",
+          "name": "Pitch"
+        },
+        {
+          "atomType": "Input",
+          "x": 0.025384615384615384,
+          "y": 0.24615384615384617,
+          "uniqueID": "id-2338",
+          "name": "Number_Of_Teeth"
+        },
+        {
+          "atomType": "Input",
+          "x": 0.025384615384615384,
+          "y": 0.3384615384615385,
+          "uniqueID": "id-2339",
+          "name": "Ring_Width"
+        },
+        {
+          "atomType": "Input",
+          "x": 0.025384615384615384,
+          "y": 0.4307692307692308,
+          "uniqueID": "id-2340",
+          "name": "Thickness"
+        },
+        {
+          "atomType": "Input",
+          "x": 0.025384615384615384,
+          "y": 0.5230769230769231,
+          "uniqueID": "id-2341",
+          "name": "Pressure_Angle"
+        },
+        {
+          "atomType": "Input",
+          "x": 0.025384615384615384,
+          "y": 0.6153846153846154,
+          "uniqueID": "id-2342",
+          "name": "Clearence"
+        },
+        {
           "atomType": "Code",
-          "x": 0.48148148148148145,
-          "y": 0.4902506963788301,
-          "uniqueID": "id-2158",
+          "x": 0.4384920634920635,
+          "y": 0.37325905292479106,
+          "uniqueID": "id-2343",
           "ioValues": [
             {
               "name": "teeth",
@@ -1285,91 +1209,49 @@
             },
             {
               "name": "clearance",
-              "ioValue": 0.5
+              "ioValue": 0.1
             }
           ],
           "interpreterVersion": 1,
-          "code": "/**\n * Internal (ring) gear with curved (spline) flanks. Each flank is split into\n * FLANK_SEGMENTS sub-splines with the exact analytic tangent fed to replicad\n * as a direction VECTOR at every junction (numbers would be interpreted as\n * degrees by replicad — vectors avoid that conversion).\n *\n * Same unified involute formulas as the external gear — the only difference\n * for internal teeth is that `orient` flips sign, so the involute curves\n * the opposite way (tooth gets WIDER outward toward the root).\n *\n * `clearance` thins each ring tooth (widening the tooth spaces) so a mating\n * gear has room to fit. It is a linear distance measured at the pitch circle,\n * in the same units as `pitch`; 0 keeps the original tight fit.\n */\nfunction run(\n  teeth: number = 40,\n  pitch: number = 5,\n  ringWidth: number = 6,\n  thickness: number = 5,\n  pressureAngle: number = 20,\n  clearance: number = 0,\n) {\n  const N = Math.max(8, Math.round(teeth));\n  const m = pitch / Math.PI;\n  const alpha = (pressureAngle * Math.PI) / 180;\n  const pitchR = (N * pitch) / (2 * Math.PI);\n  const addRInt = pitchR - m;            // tip (inward)\n  const rootRInt = pitchR + 1.25 * m;     // root (outward)\n  const baseR = pitchR * Math.cos(alpha);\n  const outerR = rootRInt + ringWidth;\n\n  const inv = (a: number) => Math.tan(a) - a;\n  const invAtPitch = inv(alpha);\n  const halfToothPitch = Math.PI / (2 * N);\n  const toothAngle = (2 * Math.PI) / N;\n\n  // Convert the linear clearance at the pitch circle into an angular amount and\n  // apply half of it to each flank, so the tooth thins symmetrically and each\n  // tooth space grows by `clearance` overall.\n  const flankShift = clearance / (2 * pitchR);\n\n  const tRoot = Math.acos(Math.min(1, baseR / rootRInt));\n  const tipBelowBase = addRInt < baseR;\n  const tAdd = tipBelowBase ? 0 : Math.acos(Math.min(1, baseR / addRInt));\n\n  const FLANK_SEGMENTS = 3;     // sub-splines per flank — bump to 4–5 for tiny tooth counts\n\n  const P = (r: number, a: number): [number, number] => [r * Math.cos(a), r * Math.sin(a)];\n  // For internal teeth: left-flank orient = −1, right-flank orient = +1\n  // (opposite of external gear, where left = +1, right = −1).\n  const involutePt = (t: number, originA: number, orient: number): [number, number] =>\n    P(baseR / Math.cos(t), originA + orient * inv(t));\n  const tanVec = (t: number, originA: number, orient: number, traversalSign: number): [number, number] => {\n    const a = originA + orient * (inv(t) + t);\n    return [traversalSign * Math.cos(a), traversalSign * Math.sin(a)];\n  };\n\n  const samples: number[] = [];\n  for (let s = 0; s <= FLANK_SEGMENTS; s++) {\n    samples.push(tAdd + (tRoot - tAdd) * (s / FLANK_SEGMENTS));\n  }\n  // samples[0] = tAdd (tip, smaller r);  samples[FLANK_SEGMENTS] = tRoot (root, larger r)\n\n  // Start the toothed-hole outline at tooth 0's left flank, at root radius.\n  const startA0 = -halfToothPitch + invAtPitch + flankShift - inv(tRoot);\n  let pen = replicad.draw(P(rootRInt, startA0));\n\n  for (let i = 0; i < N; i++) {\n    const c = i * toothAngle;\n    const leftStart = c - halfToothPitch + invAtPitch + flankShift;\n    const rightStart = c + halfToothPitch - invAtPitch - flankShift;\n\n    // ── Left flank: root → tip (t decreasing tRoot → tAdd) ──\n    for (let s = FLANK_SEGMENTS - 1; s >= 0; s--) {\n      const tA = samples[s + 1], tB = samples[s];\n      pen = pen.smoothSplineTo(involutePt(tB, leftStart, -1), {\n        startTangent: tanVec(tA, leftStart, -1, -1),\n        endTangent: tanVec(tB, leftStart, -1, -1),\n      });\n    }\n\n    // ── Tip: chord across (with radial bridges if tip dips below base circle) ──\n    if (tipBelowBase) {\n      pen = pen.lineTo(P(addRInt, leftStart));\n      pen = pen.lineTo(P(addRInt, rightStart));\n    } else {\n      pen = pen.lineTo(involutePt(tAdd, rightStart, +1));\n    }\n\n    // ── Right flank: tip → root (t increasing tAdd → tRoot) ──\n    for (let s = 1; s <= FLANK_SEGMENTS; s++) {\n      const tA = samples[s - 1], tB = samples[s];\n      pen = pen.smoothSplineTo(involutePt(tB, rightStart, +1), {\n        startTangent: tanVec(tA, rightStart, +1, +1),\n        endTangent: tanVec(tB, rightStart, +1, +1),\n      });\n    }\n\n    // ── Gap arc on root circle to next tooth (close() handles the last) ──\n    if (i < N - 1) {\n      const arcStartA = rightStart + inv(tRoot);\n      const nextLeft = (i + 1) * toothAngle - halfToothPitch + invAtPitch + flankShift;\n      const arcEndA = nextLeft - inv(tRoot);\n      const arcMidA = (arcStartA + arcEndA) / 2;\n      pen = pen.threePointsArcTo(P(rootRInt, arcEndA), P(rootRInt, arcMidA));\n    }\n  }\n\n  const innerHole = pen.close();\n  const outerDisk = replicad.drawCircle(outerR);\n  const ring2D = outerDisk.cut(innerHole);\n  return ring2D.sketchOnPlane().extrude(thickness);\n}",
-          "compiledCode": "\"use strict\";\n/**\n * Internal (ring) gear with curved (spline) flanks. Each flank is split into\n * FLANK_SEGMENTS sub-splines with the exact analytic tangent fed to replicad\n * as a direction VECTOR at every junction (numbers would be interpreted as\n * degrees by replicad — vectors avoid that conversion).\n *\n * Same unified involute formulas as the external gear — the only difference\n * for internal teeth is that `orient` flips sign, so the involute curves\n * the opposite way (tooth gets WIDER outward toward the root).\n *\n * `clearance` thins each ring tooth (widening the tooth spaces) so a mating\n * gear has room to fit. It is a linear distance measured at the pitch circle,\n * in the same units as `pitch`; 0 keeps the original tight fit.\n */\nfunction run(teeth = 40, pitch = 5, ringWidth = 6, thickness = 5, pressureAngle = 20, clearance = 0) {\n    const N = Math.max(8, Math.round(teeth));\n    const m = pitch / Math.PI;\n    const alpha = (pressureAngle * Math.PI) / 180;\n    const pitchR = (N * pitch) / (2 * Math.PI);\n    const addRInt = pitchR - m; // tip (inward)\n    const rootRInt = pitchR + 1.25 * m; // root (outward)\n    const baseR = pitchR * Math.cos(alpha);\n    const outerR = rootRInt + ringWidth;\n    const inv = (a) => Math.tan(a) - a;\n    const invAtPitch = inv(alpha);\n    const halfToothPitch = Math.PI / (2 * N);\n    const toothAngle = (2 * Math.PI) / N;\n    // Convert the linear clearance at the pitch circle into an angular amount and\n    // apply half of it to each flank, so the tooth thins symmetrically and each\n    // tooth space grows by `clearance` overall.\n    const flankShift = clearance / (2 * pitchR);\n    const tRoot = Math.acos(Math.min(1, baseR / rootRInt));\n    const tipBelowBase = addRInt < baseR;\n    const tAdd = tipBelowBase ? 0 : Math.acos(Math.min(1, baseR / addRInt));\n    const FLANK_SEGMENTS = 3; // sub-splines per flank — bump to 4–5 for tiny tooth counts\n    const P = (r, a) => [r * Math.cos(a), r * Math.sin(a)];\n    // For internal teeth: left-flank orient = −1, right-flank orient = +1\n    // (opposite of external gear, where left = +1, right = −1).\n    const involutePt = (t, originA, orient) => P(baseR / Math.cos(t), originA + orient * inv(t));\n    const tanVec = (t, originA, orient, traversalSign) => {\n        const a = originA + orient * (inv(t) + t);\n        return [traversalSign * Math.cos(a), traversalSign * Math.sin(a)];\n    };\n    const samples = [];\n    for (let s = 0; s <= FLANK_SEGMENTS; s++) {\n        samples.push(tAdd + (tRoot - tAdd) * (s / FLANK_SEGMENTS));\n    }\n    // samples[0] = tAdd (tip, smaller r);  samples[FLANK_SEGMENTS] = tRoot (root, larger r)\n    // Start the toothed-hole outline at tooth 0's left flank, at root radius.\n    const startA0 = -halfToothPitch + invAtPitch + flankShift - inv(tRoot);\n    let pen = replicad.draw(P(rootRInt, startA0));\n    for (let i = 0; i < N; i++) {\n        const c = i * toothAngle;\n        const leftStart = c - halfToothPitch + invAtPitch + flankShift;\n        const rightStart = c + halfToothPitch - invAtPitch - flankShift;\n        // ── Left flank: root → tip (t decreasing tRoot → tAdd) ──\n        for (let s = FLANK_SEGMENTS - 1; s >= 0; s--) {\n            const tA = samples[s + 1], tB = samples[s];\n            pen = pen.smoothSplineTo(involutePt(tB, leftStart, -1), {\n                startTangent: tanVec(tA, leftStart, -1, -1),\n                endTangent: tanVec(tB, leftStart, -1, -1),\n            });\n        }\n        // ── Tip: chord across (with radial bridges if tip dips below base circle) ──\n        if (tipBelowBase) {\n            pen = pen.lineTo(P(addRInt, leftStart));\n            pen = pen.lineTo(P(addRInt, rightStart));\n        }\n        else {\n            pen = pen.lineTo(involutePt(tAdd, rightStart, +1));\n        }\n        // ── Right flank: tip → root (t increasing tAdd → tRoot) ──\n        for (let s = 1; s <= FLANK_SEGMENTS; s++) {\n            const tA = samples[s - 1], tB = samples[s];\n            pen = pen.smoothSplineTo(involutePt(tB, rightStart, +1), {\n                startTangent: tanVec(tA, rightStart, +1, +1),\n                endTangent: tanVec(tB, rightStart, +1, +1),\n            });\n        }\n        // ── Gap arc on root circle to next tooth (close() handles the last) ──\n        if (i < N - 1) {\n            const arcStartA = rightStart + inv(tRoot);\n            const nextLeft = (i + 1) * toothAngle - halfToothPitch + invAtPitch + flankShift;\n            const arcEndA = nextLeft - inv(tRoot);\n            const arcMidA = (arcStartA + arcEndA) / 2;\n            pen = pen.threePointsArcTo(P(rootRInt, arcEndA), P(rootRInt, arcMidA));\n        }\n    }\n    const innerHole = pen.close();\n    const outerDisk = replicad.drawCircle(outerR);\n    const ring2D = outerDisk.cut(innerHole);\n    return ring2D.sketchOnPlane().extrude(thickness);\n}\n"
-        },
-        {
-          "atomType": "Input",
-          "x": 0.025384615384615384,
-          "y": 0.15384615384615385,
-          "uniqueID": "id-2159",
-          "name": "Pitch"
-        },
-        {
-          "atomType": "Input",
-          "x": 0.025384615384615384,
-          "y": 0.24615384615384617,
-          "uniqueID": "id-2160",
-          "name": "Number_Of_Teeth"
-        },
-        {
-          "atomType": "Input",
-          "x": 0.025384615384615384,
-          "y": 0.3384615384615385,
-          "uniqueID": "id-2161",
-          "name": "Ring_Width"
-        },
-        {
-          "atomType": "Input",
-          "x": 0.025384615384615384,
-          "y": 0.4307692307692308,
-          "uniqueID": "id-2162",
-          "name": "Thickness"
-        },
-        {
-          "atomType": "Input",
-          "x": 0.025384615384615384,
-          "y": 0.5230769230769231,
-          "uniqueID": "id-2163",
-          "name": "Pressure_Angle"
-        },
-        {
-          "atomType": "Input",
-          "x": 0.025384615384615384,
-          "y": 0.6153846153846154,
-          "uniqueID": "id-2164",
-          "name": "Clearence"
+          "code": "/**\n * Internal (ring) gear with curved (spline) flanks. Each flank is split into\n * FLANK_SEGMENTS sub-splines with the exact analytic tangent fed to replicad\n * as a direction VECTOR at every junction (numbers would be interpreted as\n * degrees by replicad — vectors avoid that conversion).\n *\n * Same unified involute formulas as the external gear — the only difference\n * for internal teeth is that `orient` flips sign, so the involute curves\n * the opposite way (tooth gets WIDER outward toward the root).\n *\n * `clearance` shrinks each ring tooth so a mating gear has room to fit. It is a\n * linear distance in the same units as `pitch`, applied two ways: it thins the\n * tooth from both flanks (widening each tooth space) AND pulls the tooth tip\n * back outward (shortening the inward-pointing tooth). 0 keeps the tight fit.\n */\nfunction run(\n  teeth: number = 40,\n  pitch: number = 5,\n  ringWidth: number = 6,\n  thickness: number = 5,\n  pressureAngle: number = 20,\n  clearance: number = 0,\n) {\n  const N = Math.max(8, Math.round(teeth));\n  const m = pitch / Math.PI;\n  const alpha = (pressureAngle * Math.PI) / 180;\n  const pitchR = (N * pitch) / (2 * Math.PI);\n  // Tip pulled back OUTWARD by `clearance` (internal tooth points inward, so a\n  // larger tip radius = a shorter tooth = radial clearance at the tip).\n  const addRInt = pitchR - m + clearance;   // tip (inward)\n  const rootRInt = pitchR + 1.25 * m;        // root (outward)\n  const baseR = pitchR * Math.cos(alpha);\n  const outerR = rootRInt + ringWidth;\n\n  const inv = (a: number) => Math.tan(a) - a;\n  const invAtPitch = inv(alpha);\n  const halfToothPitch = Math.PI / (2 * N);\n  const toothAngle = (2 * Math.PI) / N;\n\n  // Convert the linear clearance at the pitch circle into an angular amount and\n  // apply half of it to each flank, so the tooth thins symmetrically and each\n  // tooth space grows by `clearance` overall.\n  const flankShift = clearance / (2 * pitchR);\n\n  const tRoot = Math.acos(Math.min(1, baseR / rootRInt));\n  const tipBelowBase = addRInt < baseR;\n  const tAdd = tipBelowBase ? 0 : Math.acos(Math.min(1, baseR / addRInt));\n\n  const FLANK_SEGMENTS = 3;     // sub-splines per flank — bump to 4–5 for tiny tooth counts\n\n  const P = (r: number, a: number): [number, number] => [r * Math.cos(a), r * Math.sin(a)];\n  // For internal teeth: left-flank orient = −1, right-flank orient = +1\n  // (opposite of external gear, where left = +1, right = −1).\n  const involutePt = (t: number, originA: number, orient: number): [number, number] =>\n    P(baseR / Math.cos(t), originA + orient * inv(t));\n  const tanVec = (t: number, originA: number, orient: number, traversalSign: number): [number, number] => {\n    const a = originA + orient * (inv(t) + t);\n    return [traversalSign * Math.cos(a), traversalSign * Math.sin(a)];\n  };\n\n  const samples: number[] = [];\n  for (let s = 0; s <= FLANK_SEGMENTS; s++) {\n    samples.push(tAdd + (tRoot - tAdd) * (s / FLANK_SEGMENTS));\n  }\n  // samples[0] = tAdd (tip, smaller r);  samples[FLANK_SEGMENTS] = tRoot (root, larger r)\n\n  // Start the toothed-hole outline at tooth 0's left flank, at root radius.\n  const startA0 = -halfToothPitch + invAtPitch + flankShift - inv(tRoot);\n  let pen = replicad.draw(P(rootRInt, startA0));\n\n  for (let i = 0; i < N; i++) {\n    const c = i * toothAngle;\n    const leftStart = c - halfToothPitch + invAtPitch + flankShift;\n    const rightStart = c + halfToothPitch - invAtPitch - flankShift;\n\n    // ── Left flank: root → tip (t decreasing tRoot → tAdd) ──\n    for (let s = FLANK_SEGMENTS - 1; s >= 0; s--) {\n      const tA = samples[s + 1], tB = samples[s];\n      pen = pen.smoothSplineTo(involutePt(tB, leftStart, -1), {\n        startTangent: tanVec(tA, leftStart, -1, -1),\n        endTangent: tanVec(tB, leftStart, -1, -1),\n      });\n    }\n\n    // ── Tip: chord across (with radial bridges if tip dips below base circle) ──\n    if (tipBelowBase) {\n      pen = pen.lineTo(P(addRInt, leftStart));\n      pen = pen.lineTo(P(addRInt, rightStart));\n    } else {\n      pen = pen.lineTo(involutePt(tAdd, rightStart, +1));\n    }\n\n    // ── Right flank: tip → root (t increasing tAdd → tRoot) ──\n    for (let s = 1; s <= FLANK_SEGMENTS; s++) {\n      const tA = samples[s - 1], tB = samples[s];\n      pen = pen.smoothSplineTo(involutePt(tB, rightStart, +1), {\n        startTangent: tanVec(tA, rightStart, +1, +1),\n        endTangent: tanVec(tB, rightStart, +1, +1),\n      });\n    }\n\n    // ── Gap arc on root circle to next tooth (close() handles the last) ──\n    if (i < N - 1) {\n      const arcStartA = rightStart + inv(tRoot);\n      const nextLeft = (i + 1) * toothAngle - halfToothPitch + invAtPitch + flankShift;\n      const arcEndA = nextLeft - inv(tRoot);\n      const arcMidA = (arcStartA + arcEndA) / 2;\n      pen = pen.threePointsArcTo(P(rootRInt, arcEndA), P(rootRInt, arcMidA));\n    }\n  }\n\n  const innerHole = pen.close();\n  const outerDisk = replicad.drawCircle(outerR);\n  const ring2D = outerDisk.cut(innerHole);\n  return ring2D.sketchOnPlane().extrude(thickness);\n}",
+          "compiledCode": "\"use strict\";\n/**\n * Internal (ring) gear with curved (spline) flanks. Each flank is split into\n * FLANK_SEGMENTS sub-splines with the exact analytic tangent fed to replicad\n * as a direction VECTOR at every junction (numbers would be interpreted as\n * degrees by replicad — vectors avoid that conversion).\n *\n * Same unified involute formulas as the external gear — the only difference\n * for internal teeth is that `orient` flips sign, so the involute curves\n * the opposite way (tooth gets WIDER outward toward the root).\n *\n * `clearance` shrinks each ring tooth so a mating gear has room to fit. It is a\n * linear distance in the same units as `pitch`, applied two ways: it thins the\n * tooth from both flanks (widening each tooth space) AND pulls the tooth tip\n * back outward (shortening the inward-pointing tooth). 0 keeps the tight fit.\n */\nfunction run(teeth = 40, pitch = 5, ringWidth = 6, thickness = 5, pressureAngle = 20, clearance = 0) {\n    const N = Math.max(8, Math.round(teeth));\n    const m = pitch / Math.PI;\n    const alpha = (pressureAngle * Math.PI) / 180;\n    const pitchR = (N * pitch) / (2 * Math.PI);\n    // Tip pulled back OUTWARD by `clearance` (internal tooth points inward, so a\n    // larger tip radius = a shorter tooth = radial clearance at the tip).\n    const addRInt = pitchR - m + clearance; // tip (inward)\n    const rootRInt = pitchR + 1.25 * m; // root (outward)\n    const baseR = pitchR * Math.cos(alpha);\n    const outerR = rootRInt + ringWidth;\n    const inv = (a) => Math.tan(a) - a;\n    const invAtPitch = inv(alpha);\n    const halfToothPitch = Math.PI / (2 * N);\n    const toothAngle = (2 * Math.PI) / N;\n    // Convert the linear clearance at the pitch circle into an angular amount and\n    // apply half of it to each flank, so the tooth thins symmetrically and each\n    // tooth space grows by `clearance` overall.\n    const flankShift = clearance / (2 * pitchR);\n    const tRoot = Math.acos(Math.min(1, baseR / rootRInt));\n    const tipBelowBase = addRInt < baseR;\n    const tAdd = tipBelowBase ? 0 : Math.acos(Math.min(1, baseR / addRInt));\n    const FLANK_SEGMENTS = 3; // sub-splines per flank — bump to 4–5 for tiny tooth counts\n    const P = (r, a) => [r * Math.cos(a), r * Math.sin(a)];\n    // For internal teeth: left-flank orient = −1, right-flank orient = +1\n    // (opposite of external gear, where left = +1, right = −1).\n    const involutePt = (t, originA, orient) => P(baseR / Math.cos(t), originA + orient * inv(t));\n    const tanVec = (t, originA, orient, traversalSign) => {\n        const a = originA + orient * (inv(t) + t);\n        return [traversalSign * Math.cos(a), traversalSign * Math.sin(a)];\n    };\n    const samples = [];\n    for (let s = 0; s <= FLANK_SEGMENTS; s++) {\n        samples.push(tAdd + (tRoot - tAdd) * (s / FLANK_SEGMENTS));\n    }\n    // samples[0] = tAdd (tip, smaller r);  samples[FLANK_SEGMENTS] = tRoot (root, larger r)\n    // Start the toothed-hole outline at tooth 0's left flank, at root radius.\n    const startA0 = -halfToothPitch + invAtPitch + flankShift - inv(tRoot);\n    let pen = replicad.draw(P(rootRInt, startA0));\n    for (let i = 0; i < N; i++) {\n        const c = i * toothAngle;\n        const leftStart = c - halfToothPitch + invAtPitch + flankShift;\n        const rightStart = c + halfToothPitch - invAtPitch - flankShift;\n        // ── Left flank: root → tip (t decreasing tRoot → tAdd) ──\n        for (let s = FLANK_SEGMENTS - 1; s >= 0; s--) {\n            const tA = samples[s + 1], tB = samples[s];\n            pen = pen.smoothSplineTo(involutePt(tB, leftStart, -1), {\n                startTangent: tanVec(tA, leftStart, -1, -1),\n                endTangent: tanVec(tB, leftStart, -1, -1),\n            });\n        }\n        // ── Tip: chord across (with radial bridges if tip dips below base circle) ──\n        if (tipBelowBase) {\n            pen = pen.lineTo(P(addRInt, leftStart));\n            pen = pen.lineTo(P(addRInt, rightStart));\n        }\n        else {\n            pen = pen.lineTo(involutePt(tAdd, rightStart, +1));\n        }\n        // ── Right flank: tip → root (t increasing tAdd → tRoot) ──\n        for (let s = 1; s <= FLANK_SEGMENTS; s++) {\n            const tA = samples[s - 1], tB = samples[s];\n            pen = pen.smoothSplineTo(involutePt(tB, rightStart, +1), {\n                startTangent: tanVec(tA, rightStart, +1, +1),\n                endTangent: tanVec(tB, rightStart, +1, +1),\n            });\n        }\n        // ── Gap arc on root circle to next tooth (close() handles the last) ──\n        if (i < N - 1) {\n            const arcStartA = rightStart + inv(tRoot);\n            const nextLeft = (i + 1) * toothAngle - halfToothPitch + invAtPitch + flankShift;\n            const arcEndA = nextLeft - inv(tRoot);\n            const arcMidA = (arcStartA + arcEndA) / 2;\n            pen = pen.threePointsArcTo(P(rootRInt, arcEndA), P(rootRInt, arcMidA));\n        }\n    }\n    const innerHole = pen.close();\n    const outerDisk = replicad.drawCircle(outerR);\n    const ring2D = outerDisk.cut(innerHole);\n    return ring2D.sketchOnPlane().extrude(thickness);\n}\n"
         }
       ],
       "allConnectors": [
         {
-          "ap2Name": "number or geometry",
-          "ap1ID": "id-2158",
-          "ap2ID": "id-2157"
-        },
-        {
           "ap2Name": "pitch",
-          "ap1ID": "id-2159",
-          "ap2ID": "id-2158"
+          "ap1ID": "id-2337",
+          "ap2ID": "id-2343"
         },
         {
           "ap2Name": "teeth",
-          "ap1ID": "id-2160",
-          "ap2ID": "id-2158"
+          "ap1ID": "id-2338",
+          "ap2ID": "id-2343"
         },
         {
           "ap2Name": "ringWidth",
-          "ap1ID": "id-2161",
-          "ap2ID": "id-2158"
+          "ap1ID": "id-2339",
+          "ap2ID": "id-2343"
         },
         {
           "ap2Name": "thickness",
-          "ap1ID": "id-2162",
-          "ap2ID": "id-2158"
+          "ap1ID": "id-2340",
+          "ap2ID": "id-2343"
         },
         {
           "ap2Name": "pressureAngle",
-          "ap1ID": "id-2163",
-          "ap2ID": "id-2158"
+          "ap1ID": "id-2341",
+          "ap2ID": "id-2343"
         },
         {
           "ap2Name": "clearance",
-          "ap1ID": "id-2164",
-          "ap2ID": "id-2158"
+          "ap1ID": "id-2342",
+          "ap2ID": "id-2343"
+        },
+        {
+          "ap2Name": "number or geometry",
+          "ap1ID": "id-2343",
+          "ap2ID": "id-2336"
         }
       ],
       "parentRepo": {
@@ -1395,7 +1277,7 @@
       },
       "unitsKey": "Unitless",
       "fileTypeVersion": 1,
-      "lastReloadedFromGithubAt": 1785883778171
+      "lastReloadedFromGithubAt": 1785884080608
     }
   ],
   "allConnectors": [
@@ -1413,11 +1295,6 @@
       "ap2Name": "number or geometry",
       "ap1ID": "id-885",
       "ap2ID": "id-780"
-    },
-    {
-      "ap2Name": "Shape",
-      "ap1ID": "id-885",
-      "ap2ID": "id-2005"
     },
     {
       "ap2Name": "geometry",
@@ -1455,11 +1332,6 @@
       "ap2ID": "id-1483"
     },
     {
-      "ap2Name": "input",
-      "ap1ID": "id-1274",
-      "ap2ID": "id-988"
-    },
-    {
       "ap2Name": "geometry",
       "ap1ID": "id-1837",
       "ap2ID": "id-1853"
@@ -1468,6 +1340,11 @@
       "ap2Name": "retain",
       "ap1ID": "id-988",
       "ap2ID": "id-885"
+    },
+    {
+      "ap2Name": "input",
+      "ap1ID": "id-2344",
+      "ap2ID": "id-988"
     }
   ],
   "unitsKey": "MM",
